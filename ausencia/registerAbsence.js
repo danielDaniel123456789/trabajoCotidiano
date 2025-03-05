@@ -29,6 +29,7 @@ function registerAbsence(index) {
             <select id="absenceType" class="swal-input">
                 <option value="justificada">Ausencia Justificada</option>
                 <option value="injustificada">Ausencia Injustificada</option>
+                 <option value="tardía">Llego tarde a clases</option>
             </select>
             <select id="absenceMateria" class="swal-input">
                 ${materiasOptions}

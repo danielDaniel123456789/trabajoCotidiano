@@ -12,12 +12,13 @@ function editAbsence(studentIndex, absenceIndex) {
             <div style="display: flex; flex-direction: column; gap: 10px;">
                 <input id="absenceDate" class="swal2-input" type="date" value="${absence.date}" placeholder="Fecha (dd/mm/yyyy)">
                 
-                <select id="absenceType" class="swal2-input" >
+                <select id="absenceType" class="swal2-input">
                     <option value="justificada" ${absence.type === 'justificada' ? 'selected' : ''}>Ausencia Justificada</option>
                     <option value="injustificada" ${absence.type === 'injustificada' ? 'selected' : ''}>Ausencia Injustificada</option>
+                    <option value="tardía" ${absence.type === 'tardía' ? 'selected' : ''}>Llego tarde a clases</option>
                 </select>
 
-                <select id="absenceMateria" class="swal2-input" >
+                <select id="absenceMateria" class="swal2-input">
                     <option value="" ${absence.materia === '' ? 'selected' : ''}>Seleccionar Materia</option>
                     ${materias.map(materia => `<option value="${materia}" ${absence.materia === materia ? 'selected' : ''}>${materia}</option>`).join('')}
                 </select>
