@@ -3,34 +3,37 @@ function addStudent() {
         title: 'Agregar Estudiante',
         html: `
             <input id="studentName" class="swal2-input" placeholder="Nombre">
-            <input id="studentSurname" class="swal2-input" placeholder="Primer Apellido">
-            <input id="studentSecondSurname" class="swal2-input" placeholder="Segundo Apellido">
-            <input id="studentCedula" class="swal2-input" placeholder="Cédula" type="text"> <!-- No es requerido -->
+            <input id="studentSurname" class="swal2-input" placeholder="Primer Apellido (opcional)">
+            <input id="studentSecondSurname" class="swal2-input" placeholder="Segundo Apellido (opcional)">
+            <input id="studentCedula" class="swal2-input" placeholder="Cédula (opcional)" type="text">
         `,
         focusConfirm: false,
-        showCancelButton: true, // Mostrar el botón de cancelar
-        cancelButtonText: 'Cancelar', // Texto del botón de cancelar
-        cancelButtonColor: '#d33', // Color del botón de cancelar
-        confirmButtonText: 'Agregar', // Texto del botón de confirmar
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Agregar',
         preConfirm: () => {
-            const name = document.getElementById('studentName').value;
-            const surname = document.getElementById('studentSurname').value;
-            const secondSurname = document.getElementById('studentSecondSurname').value;
-            const cedula = document.getElementById('studentCedula').value;
+            const name = document.getElementById('studentName').value.trim();
+            const surname = document.getElementById('studentSurname').value.trim();
+            const secondSurname = document.getElementById('studentSecondSurname').value.trim();
+            const cedula = document.getElementById('studentCedula').value.trim();
 
-            // Verificar que los campos obligatorios (nombre, apellidos) sean completados
-            if (name && surname && secondSurname) {
-                const student = {
-                    name: name,
-                    surname: surname,
-                    secondSurname: secondSurname,
-                    cedula: cedula, // Guardar la cédula, aunque no es obligatorio
-                    absences: [] // Lista de ausencias vacía inicialmente
-                };
-                saveStudent(student);
-            } else {
-                Swal.showValidationMessage('Por favor ingrese todos los campos obligatorios');
+            // Verificar que al menos el nombre esté ingresado
+            if (!name) {
+                Swal.showValidationMessage('El nombre es obligatorio');
+                return false;
             }
+
+            // Crear objeto del estudiante
+            const student = {
+                name: name,
+                surname: surname || '', // Si no se ingresa, se guarda como cadena vacía
+                secondSurname: secondSurname || '',
+                cedula: cedula || '',
+                absences: []
+            };
+
+            saveStudent(student);
         }
     });
 }

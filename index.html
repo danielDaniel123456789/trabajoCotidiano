@@ -28,6 +28,8 @@
     <script src="ausencia/clavesRegistro.js"></script>
     <script src="cotidiano/informeTrabajoCotidiano.js"></script>
     <script src="cotidiano/trabajoCotidiano.js"></script>
+    <script src="cotidiano/abrirInformeCotidiano.js"></script>
+    <script src="cotidiano/deleteTrabajoCotidiano.js"></script>
     
     <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
@@ -45,7 +47,12 @@
         .student-card .btn {
             margin-left: 10px;
         }
-
+        #listaEstudiantes {
+    height: 90vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1;
+}
         .footer {
     position: fixed;
     left: 0;
@@ -57,7 +64,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 150px;
+    height: 70px;
     background: linear-gradient(to bottom, #343a40, #495057);
     border-top: 4px solid #435c75; /* Borde de color atractivo */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra sutil en el borde */
@@ -72,6 +79,12 @@
 
         .swal2-container.swal2-center.swal2-backdrop-show {
     background-color: #343a40;
+}
+
+select#materiaSelect {
+    background-color: #343a40;
+    color: white;
+    border-radius: 8px;
 }
 
 /* Botón de cierre en la esquina */
@@ -126,12 +139,15 @@ div:where(.swal2-container) div:where(.swal2-html-container) {
     </style>
 </head>
 <body>
-    <div class="container text-center">
-        <h3 class="my-4 text-white">Control de Ausencias</h3>
-        <div id="studentList" class="row"></div>
+    <div id="listaEstudiantes">
+        <div class="container text-center">
+            <h3 class="my-4 text-white">Control de Ausencias</h3>
+            <div id="studentList" class="row"></div>
+        </div>
+        <div id="materiaList" class="row"></div> <!-- Contenedor donde se cargan las materias -->
+    
     </div>
-    <div id="materiaList" class="row"></div> <!-- Contenedor donde se cargan las materias -->
-
+ 
 
     <div class="footer animate__animated animate__backInDown justify-content-center">
       

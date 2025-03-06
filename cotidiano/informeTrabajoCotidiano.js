@@ -2,8 +2,8 @@ function informeTrabajoCotidiano(index) {
     const students = JSON.parse(localStorage.getItem('students')) || [];
     const student = students[index];
 
-    // Obtener todos los trabajos cotidianos del estudiante
-    const trabajosCotidianos = student.trabajoCotidiano || [];
+    // Obtener las materias del localStorage
+    const materias = JSON.parse(localStorage.getItem('materias')) || [];
 
     // Mostrar Swal para seleccionar la materia con el nombre del estudiante en el título
     Swal.fire({
@@ -11,7 +11,7 @@ function informeTrabajoCotidiano(index) {
         html: `
             <select id="materiaSelect" class="swal2-input">
                 <option value="">Seleccione una materia</option>
-                ${trabajosCotidianos.map(work => `<option value="${work.materia}">${work.materia}</option>`).join('')}
+                ${materias.map(materia => `<option value="${materia}">${materia}</option>`).join('')}
             </select>
         `,
         focusConfirm: false,
@@ -30,6 +30,7 @@ function informeTrabajoCotidiano(index) {
             const selectedMateria = result.value;
 
             // Filtrar los trabajos cotidianos por la materia seleccionada
+            const trabajosCotidianos = student.trabajoCotidiano || [];
             const filteredTrabajoCotidiano = trabajosCotidianos.filter(work => work.materia === selectedMateria);
 
             if (filteredTrabajoCotidiano.length === 0) {
@@ -43,7 +44,7 @@ function informeTrabajoCotidiano(index) {
                             <tr>
                                 <th>Fecha</th>
                                 <th>Tipo</th>
-                                <th>Acción</th> <!-- Eliminar columna de Materia -->
+                                <th>Acción</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -68,9 +69,9 @@ function informeTrabajoCotidiano(index) {
                 Swal.fire({
                     title: `Informe de Trabajo Cotidiano de ${student.name} ${student.surname} - ${selectedMateria}`,
                     html: trabajoCotidianoDetails,
-                    showCancelButton: true,  // Habilitar el botón de cancelar
-                    cancelButtonText: 'Cancelar',  // Texto del botón de cancelar
-                    focusConfirm: false  // Prevenir que el botón de confirmación se enfoque
+                    showCancelButton: true,
+                    cancelButtonText: 'Cancelar',
+                    focusConfirm: false
                 });
             }
         }
