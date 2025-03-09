@@ -1,16 +1,17 @@
 function filterStudents() {
-    const query = document.getElementById('buscarEstudiante').value.toLowerCase();
+    const query = document.getElementById('buscarEstudiante').value.toLowerCase().trim();
     const students = JSON.parse(localStorage.getItem('students')) || [];
-    
+
+    // Filtrar estudiantes
     const filteredStudents = students.filter(student => {
-        // Comprobar que las propiedades existan antes de llamar a toLowerCase()
         return (
-            (student.name?.toLowerCase().includes(query)) || 
-            (student.surname?.toLowerCase().includes(query)) || 
+            (student.name?.toLowerCase().includes(query)) ||
+            (student.surname?.toLowerCase().includes(query)) ||
             (student.secondSurname?.toLowerCase().includes(query)) ||
-            (student.id?.toLowerCase().includes(query))
+            (student.cedula?.toLowerCase().includes(query)) // Cambiado de 'id' a 'cedula'
         );
     });
-    displayStudents(filteredStudents);
-}
 
+    // Mostrar los estudiantes filtrados
+    displayStudents(filteredStudents, students);
+}
