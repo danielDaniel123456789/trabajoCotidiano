@@ -1,0 +1,43 @@
+Asegúrate de estar en la rama tester01:
+
+git checkout tester01
+Actualiza tu rama tester01 con los últimos cambios de main:
+
+git fetch origin main
+git merge origin/main
+Si tienes cambios sin commit, agrégales y haz un commit:
+
+
+git add .
+git commit -m "Descripción de los cambios"
+Sube los cambios de tester01 a GitHub:
+
+bash
+Copiar
+Editar
+git push origin tester01
+Cambia a la rama main:
+
+bash
+Copiar
+Editar
+git checkout main
+Actualiza la rama main con los últimos cambios remotos:
+
+bash
+Copiar
+Editar
+git fetch origin main
+git merge origin/main
+Haz el merge de la rama tester01 a main:
+
+bash
+Copiar
+Editar
+git merge tester01
+Sube los cambios a la rama main en GitHub:
+
+bash
+Copiar
+Editar
+git push origin main

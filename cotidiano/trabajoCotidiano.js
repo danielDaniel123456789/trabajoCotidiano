@@ -1,89 +1,105 @@
-function trabajoCotidiano(index) {
+function trabajoCotidiano(studentId) {
     const students = JSON.parse(localStorage.getItem('students')) || [];
-    const student = students[index];
-
-    // Obtener las materias almacenadas en localStorage
     const materias = JSON.parse(localStorage.getItem('materias')) || [];
+    const grupos = JSON.parse(localStorage.getItem('grupos')) || [];
 
-    // Verificar si hay materias disponibles
-    if (materias.length === 0) {
-        Swal.fire('Sin Materias', 'No se han registrado materias. Por favor, agregue materias primero.', 'warning');
+    const student = students.find(s => s.id === studentId);
+    if (!student) {
+        Swal.fire('Error', 'Estudiante no encontrado', 'error');
         return;
     }
 
-    // Recuperar la última materia seleccionada si existe
-    const lastSelectedMateria = student.lastSelectedMateria || '';
+    // Obtener la materia y el grupo
+    const idMateria = Number(student.materiaId);
+    const idGrupo = Number(student.groupId);
+    const materia = materias.find(m => m.id === idMateria);
+    const grupo = grupos.find(g => g.id === idGrupo);
 
-    // Crear opciones del select con la última materia seleccionada por defecto
-    let materiasOptions = materias.map(materia => 
-        `<option value="${materia}" ${materia === lastSelectedMateria ? 'selected' : ''}>${materia}</option>`
-    ).join('');
+    if (!materia) {
+        Swal.fire('Error', 'Materia no encontrada', 'error');
+        return;
+    }
+    if (!grupo) {
+        Swal.fire('Error', 'Grupo no encontrado', 'error');
+        return;
+    }
+
+    // Obtener la fecha actual
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate(); // Número de días en el mes
+
+    // Crear las opciones del selector de fechas
+    let dateOptions = '';
+    for (let i = 1; i <= daysInMonth; i++) {
+        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        const selected = currentDate.getDate() === i ? 'selected' : '';
+        dateOptions += `<option value="${dateStr}" ${selected}>${dateStr}</option>`;
+    }
+
+    // Obtener el último ID registrado y aumentar en uno
+    let lastId = Number(localStorage.getItem('lastTrabajoId')) || 0;
+    const newId = lastId + 1;
 
     Swal.fire({
-        title: `Trabajo cotidiano ${student.name} ${student.surname}`,
+        title: `Registro de Trabajo Cotidiano`,
         html: `
-        <div class="p-2">
-            <div id="closeButton" class="swal-close-btn">&times;</div>
-            <input id="absenceDate" class="swal-input" type="date" value="${getCurrentDate()}">
-            <select id="absenceType" class="swal-input">
-                <option value="No participó">No participó</option>
-                <option value="Baja participación">Baja participación</option>
-                <option value="Participación parcial">Participación parcial</option>
-                <option value="Participación activa">Participación activa</option>
-            </select>
-            <textarea id="absenceDetail" class="swal-input" placeholder="Ingrese un detalle (opcional)"></textarea>
-            <select id="absenceMateria" class="swal-input">
-                ${materiasOptions}
-            </select>
-        </div>
+        <h5>Estudiante: ${student.name} ${student.surname}</h5>
+        <p><strong>Materia:</strong> ${materia.nombre}</p>
+        <p><strong>Grupo:</strong> ${grupo.nombre}</p>
+        <label for="trabajoDate">Seleccionar fecha:</label>
+        <select id="trabajoDate" class="swal-input">
+            ${dateOptions}
+        </select>
+        <br>
+        <label for="trabajoType">Seleccionar desempeño:</label>
+        <select id="trabajoType" class="swal-input">
+            <option value="0">No participó</option>
+            <option value="1">Baja participación</option>
+            <option value="2">Participación parcial</option>
+            <option value="3">Participación activa</option>
+        </select>
+        <br>
+        <label for="trabajoDetail">Detalles (opcional):</label>
+        <textarea id="trabajoDetail" class="swal-input" placeholder="Ingrese un detalle"></textarea>
         `,
-        focusConfirm: false,
         showCancelButton: true,
-        cancelButtonText: 'Cancelar',
+        confirmButtonText: 'Guardar',
         preConfirm: () => {
-            const date = document.getElementById('absenceDate').value;
-            const type = document.getElementById('absenceType').value;
-            const detail = document.getElementById('absenceDetail').value.trim(); // Ahora es opcional
-            const materia = document.getElementById('absenceMateria').value;
+            const date = document.getElementById('trabajoDate').value;
+            const type = document.getElementById('trabajoType').value;
+            const detail = document.getElementById('trabajoDetail').value.trim();
 
-            if (!date || !type || !materia) {
-                Swal.showValidationMessage('Por favor complete los campos obligatorios.');
+            if (!type) {
+                Swal.showValidationMessage('Debe seleccionar un tipo de participación.');
                 return false;
             }
 
-            // Guardar la materia seleccionada en el estudiante
-            student.lastSelectedMateria = materia;
+            // Crear el objeto del trabajo cotidiano
+            const trabajo = { 
+                id: newId, 
+                date, // Usar la fecha seleccionada
+                type, 
+                materiaId: idMateria,
+                grupoId: idGrupo,
+                detail: detail || null
+            };
 
-            // Crear el objeto del trabajo cotidiano, incluyendo el detalle opcional
-            const trabajo = { date, type, materia };
-            if (detail) {
-                trabajo.detail = detail; // Solo se guarda si hay un detalle
-            }
-
-            // Si el campo trabajoCotidiano no existe en el estudiante, lo inicializamos como un array vacío
-            if (!student.trabajoCotidiano) {
-                student.trabajoCotidiano = [];
-            }
-
-            // Agregar el trabajo cotidiano al subarray del estudiante
+            // Asegurar que el array trabajoCotidiano existe
+            student.trabajoCotidiano = student.trabajoCotidiano || [];
             student.trabajoCotidiano.push(trabajo);
 
-            // Actualizar el array de estudiantes
-            students[index] = student;
-
-            // Guardar los estudiantes con el trabajo cotidiano registrado
+            // Guardar cambios en localStorage
             localStorage.setItem('students', JSON.stringify(students));
+            localStorage.setItem('lastTrabajoId', newId); // Actualizar el último ID utilizado
 
-            Swal.fire('Trabajo Cotidiano Registrado', 'El trabajo cotidiano ha sido registrado correctamente.', 'success')
+            
+
+            Swal.fire('Guardado', 'Trabajo cotidiano registrado correctamente.', 'success')
                 .then(() => {
-                    // Llamar al informe de trabajo cotidiano con la materia seleccionada
-                    abrirInformeCotidiano(index, materia); 
+                    resumeCotidiano(studentId);
                 });
-        },
-        willOpen: () => {
-            document.getElementById('closeButton').addEventListener('click', () => {
-                Swal.close();
-            });
         }
     });
 }

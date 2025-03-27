@@ -10,15 +10,24 @@ function addMateria() {
         cancelButtonText: 'Cancelar', // Texto del botón de cancelar
         confirmButtonText: 'Agregar', // Texto del botón de confirmar
         preConfirm: () => {
-            const materiaName = document.getElementById('materiaName').value;
+            const materiaName = document.getElementById('materiaName').value.trim();
 
             // Verificar que el campo no esté vacío
             if (materiaName) {
+                // Convertir la primera letra en mayúscula
+                const formattedMateriaName = materiaName.charAt(0).toUpperCase() + materiaName.slice(1).toLowerCase();
+
                 // Obtener la lista de materias del localStorage
                 const materias = JSON.parse(localStorage.getItem('materias')) || [];
 
+                // Crear objeto de materia con ID único
+                const materia = {
+                    id: materias.length + 1, // ID automático basado en la longitud actual de las materias
+                    nombre: formattedMateriaName
+                };
+
                 // Agregar la nueva materia a la lista
-                materias.push(materiaName);
+                materias.push(materia);
 
                 // Guardar la lista de materias actualizada en localStorage
                 localStorage.setItem('materias', JSON.stringify(materias));
@@ -42,7 +51,3 @@ function addMateria() {
         }
     });
 }
-
-
-
-

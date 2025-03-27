@@ -12,6 +12,6 @@ function filterStudents() {
         );
     });
 
-    // Mostrar los estudiantes filtrados
-    displayStudents(filteredStudents, students);
+    // Llamar a loadStudents con los estudiantes filtrados
+    loadStudents(filteredStudents);
 }

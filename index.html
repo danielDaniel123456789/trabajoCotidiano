@@ -17,135 +17,91 @@
     <script src="ausencia/editAbsence.js"></script>
     <script src="ausencia/deleteAbsence.js"></script>
     <script src="ausencia/copyStudentData.js"></script>
-    <script src="ausencia/editStudent.js"></script>
+    <script src="estudiante/editStudent.js"></script>
+    <script src="estudiante/buscadorLocalStore.js"></script>
     <script src="ausencia/capitalizeFirstLetter.js"></script>
     <script src="ausencia/copyStudentPadre.js"></script>
-    <script src="ausencia/addMateria.js"></script>
-    <script src="ausencia/misMaterias.js"></script>
-    <script src="ausencia/opciones.js"></script>
+
+    <script src="materias/addMateria.js"></script>
+    <script src="materias/misMaterias.js"></script>
+
+
     <script src="ausencia/viewAbsencesRecargar.js"></script>
     <script src="ausencia/usuarioRegistrado.js"></script>
     <script src="ausencia/clavesRegistro.js"></script>
-    <script src="cotidiano/informeTrabajoCotidiano.js"></script>
+
     <script src="cotidiano/trabajoCotidiano.js"></script>
     <script src="cotidiano/abrirInformeCotidiano.js"></script>
+    <script src="cotidiano/eliminarTrabajoCotidiano.js"></script>
+    <script src="cotidiano/resumeCotidiano.js"></script>
+
     <script src="cotidiano/deleteTrabajoCotidiano.js"></script>
     <script src="cotidiano/editTrabajoCotidiano.js"></script>
     <script src="importarEstudiantes/importarEstudiantes.js"></script>
     <script src="importarEstudiantes/eliminarTodoslosEstudiantes.js"></script>
-    
+    <script src="grupo/grupo.js"></script>
+    <script src="grupo/misGrupos.js"></script>
+    <script src="grupo/editarGrupo.js"></script>
+     <script src="ausencia/opciones.js"></script>
+     <script src="formato/capitalizeWords.js"></script>
+     <script src="formato/generateId.js"></script>
+     <script src="estudiante/deleteStudent.js"></script>
+     <script src="cotidiano/informeTrabajoCotidiano.js"></script>
+     <script src="tareas/resumenTares.js"></script>
+     <script src="tareas/registrarTareas.js"></script>
+     <script src="tareas/informeGeneralTareas.js"></script>
+     <script src="tareas/viewTasks.js"></script>
+     <script src="tareas/editarTarea.js"></script>
+     <script src="tareas/eliminarTarea.js"></script>
+     <script src="pruebas/registrarPrueba.js"></script>
+     <script src="pruebas/viewPruebas.js"></script>
+     <script src="pruebas/informeGeneralPruebas.js"></script>
+     <script src="pruebas/editarPrueba.js"></script>
+     <script src="pruebas/editarPruebaEstudiante.js"></script>
+     <script src="ausencia/informeMesAsistencia.js"></script>
+   
+
+     <script src="cotidiano/editarTrabajoCotidiano.js"></script>
+     <script src="importarEstudiantes/datosGeneralesEspecificos.js"></script>
+
     <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
   />
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #343a40;
-        }
+  <link rel="stylesheet" href="CSS/style.css">
 
-        .student-card {
-            margin: 10px 0;
-        }
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
 
-        .student-card .btn {
-            margin-left: 10px;
-        }
-        #listaEstudiantes {
-    height: 90vh;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #888 #f1f1f1;
-}
-        .footer {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    background-color: #343a40;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 70px;
-    background: linear-gradient(to bottom, #343a40, #495057);
-    border-top: 4px solid #435c75; /* Borde de color atractivo */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra sutil en el borde */
-}
-
-
-     
-
-     
-
-     
-
-        .swal2-container.swal2-center.swal2-backdrop-show {
-    background-color: #343a40;
-}
-
-select#materiaSelect {
-    background-color: #343a40;
-    color: white;
-    border-radius: 8px;
-}
-
-/* Botón de cierre en la esquina */
-.swal-close-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    border: none;
-    background: transparent;
-    font-size: 24px;
-    cursor: pointer;
-    color: #aaa;
-    transition: color 0.3s ease;
-}
-
-.swal-close-btn:hover {
-    color: #333;
-}
-
-/* Estilos para los inputs y selects */
-.swal-input {
-    display: block;
-    margin-bottom: 10px;
-    width: 100%;
-    padding: 8px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background: #f9f9f9;
-    transition: border-color 0.3s ease;
-}
-
-.swal-input:focus {
-    border-color: #007bff;
-    outline: none;
-    background: #fff;
-}
-/* Sobrescribir el padding para el .swal2-input */
-.swal2-container .swal2-input {
-    padding: 0 !important;  /* Elimina el padding */
-}
-
-
-div:where(.swal2-container) div:where(.swal2-html-container) {
-    padding: 0 !important;  /* Elimina el padding */
-}
-.card{
-    background-color: #343a40;
-    color: white;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
-}
-    </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
+
+    
     <div id="listaEstudiantes">
         <div class="container text-center">
             <h3 class="my-4 text-white">Control de Ausencias</h3>
-           
+
+        
+
+            <h6 class="text-white">    Excel SAP</h6>
+
+       
+            <a href="#" onclick="informeTrabajoCotidiano()">Calculo Trabajo cotidiano</a>
+            <br>
+            <a href="#" onclick="informeGeneralTareas()">informeGeneralTareas</a>
+            <br>
+
+            <a href="#" onclick="informeGeneralPruebas()">informeGeneralPruebas</a>
+            <br>
+
+            <a href="#" onclick="informeMesAsistencia()">informeMesAsistencia</a>//
+
+    
+
+         
+            
+            <input type="text" id="nombreLocalStore" placeholder="Nombre de LocalStorage">
+            <input type="number" id="id" placeholder="ID">
+            <button onclick="cargarDatos()">Buscar</button>
             <div id="studentList" class="row"></div>
         </div>
         <div id="materiaList" class="row"></div> <!-- Contenedor donde se cargan las materias -->

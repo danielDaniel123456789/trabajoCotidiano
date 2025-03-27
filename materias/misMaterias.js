@@ -1,3 +1,4 @@
+
 // Función para mostrar las materias que lleva el estudiante en una tabla con opción de editar
 function misMaterias() {
     const materias = JSON.parse(localStorage.getItem('materias')) || [];
@@ -25,8 +26,8 @@ function misMaterias() {
     materias.forEach((materia, index) => {
         materiasContent += `
             <tr>
-                <td>${index + 1}</td>
-                <td>${materia}</td>
+                <td>${materia.id}</td>
+                <td>${materia.nombre}</td>
                 <td>
                     <button class="btn btn-warning btn-sm" onclick="editarMateria(${index})">Editar</button>
                 </td>
@@ -54,16 +55,19 @@ function editarMateria(index) {
     Swal.fire({
         title: 'Editar Materia',
         html: `
-            <input id="editMateria" class="swal2-input" type="text" value="${materiaActual}">
+            <input id="editMateria" class="swal2-input" type="text" value="${materiaActual.nombre}">
         `,
         focusConfirm: false,
         showCancelButton: true,
         cancelButtonText: 'Cancelar',
         preConfirm: () => {
-            const newMateria = document.getElementById('editMateria').value;
+            const newMateria = document.getElementById('editMateria').value.trim();
             if (newMateria) {
+                // Convertir la primera letra en mayúscula
+                const formattedMateriaName = newMateria.charAt(0).toUpperCase() + newMateria.slice(1).toLowerCase();
+
                 // Actualizar la materia en el array
-                materias[index] = newMateria;
+                materias[index].nombre = formattedMateriaName;
                 localStorage.setItem('materias', JSON.stringify(materias));
 
                 Swal.fire('Materia Actualizada', 'La materia ha sido actualizada correctamente.', 'success');
