@@ -9,7 +9,7 @@ function eliminarTodoslosEstudiantes() {
         confirmButtonText: 'Eliminar',
         cancelButtonText: 'Cancelar',
         preConfirm: () => {
-            const userInput = document.getElementById('confirmDeleteInput').value;
+            const userInput = document.getElementById('confirmDeleteInput').value.trim(); // Eliminar espacios antes y después
             if (userInput !== "Eliminar") {
                 Swal.showValidationMessage('Debes escribir "Eliminar" exactamente como se indica.');
                 return false;
