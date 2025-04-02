@@ -97,6 +97,7 @@ function viewAbsences(studentId) {
         <h5>Informe de Ausencias de ${student.name} - Materia: ${selectedMateria} - Grupo ${nombreGrupo}:</h5>
         ${absenceDetails}
         `,
+        showCloseButton: true,
         showCancelButton: true,
         cancelButtonText: 'Cancelar',
         focusConfirm: false

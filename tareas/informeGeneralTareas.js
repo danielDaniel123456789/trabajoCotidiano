@@ -55,6 +55,7 @@ function informeGeneralTareas() {
                 title: 'Selecciona una materia',
                 html: selectMateriasHTML,
                 showCancelButton: true,
+                showCloseButton: true,
                 confirmButtonText: 'Mostrar Informe',
                 cancelButtonText: 'Cancelar',
                 preConfirm: () => {

@@ -43,7 +43,7 @@ function editStudent(studentId) {
         html: `  
         <div class="p-4">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <button onclick="deleteStudent(${studentId})" class="swal2-cancel swal2-styled btn-danger" >🗑️ Eliminar</button>
+                <button onclick="deleteStudent(${studentId})" class="swal2-cancel swal2-styled bg-warnign" >🗑️ Eliminar</button>
                 <button class="swal2-close" onclick="Swal.close()" >&times;</button>
             </div>
             <h4>Editar Estudiante</h4>

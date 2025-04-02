@@ -1,4 +1,21 @@
 
+
+a {
+    text-decoration: none;
+}
+span.btn.btn-link.btn-sm {
+    text-decoration: none;
+}
+
+p.card-text.text-secondary.cedula {
+    position: absolute;
+
+    top: 4px;
+}
+.cargarEstudiantes{
+    color: white;
+}
+
 div:where(.swal2-container) div:where(.swal2-html-container) {
     overflow: hidden;
   }
@@ -14,6 +31,7 @@ div:where(.swal2-container) div:where(.swal2-html-container) {
   
           .student-card {
               margin: 10px 0;
+              border-bottom: #4d5656 solid 1px;
           }
   
           .student-card .btn {
@@ -42,8 +60,32 @@ div:where(.swal2-container) div:where(.swal2-html-container) {
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra sutil en el borde */
   }
   
-  
-       
+  .espacioNombre{
+    padding-top: 20px;
+  }
+  .student-card {
+    transition: background 0.2s;
+    border-radius: 8px;
+    padding: 10px;
+}
+.student-card:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    -webkit-box-shadow: 4px 25px 37px -6px rgba(0,0,0,0.75);
+    -moz-box-shadow: 4px 25px 37px -6px rgba(0,0,0,0.75);
+    box-shadow: 4px 25px 37px -6px rgba(0,0,0,0.75);
+}
+      
   
        
   

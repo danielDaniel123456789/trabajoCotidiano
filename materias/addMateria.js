@@ -38,8 +38,7 @@ function addMateria() {
                     const registro = {
                         fechaRegistro: new Date().toISOString() // Guardar la fecha en formato ISO
                     };
-                    localStorage.setItem('registroAsistencia', JSON.stringify(registro));
-                    localStorage.setItem('estadoUsuarioRegistrado', JSON.stringify('0'));
+                    generarRegistroUsuario();
                     console.log("Registro de asistencia creado:", registro); // Solo para depuración
                 }
 

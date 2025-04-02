@@ -65,6 +65,7 @@ function viewTasks(studentId) {
         ${taskDetails}
         `,
         showCancelButton: true,
+        
         cancelButtonText: 'Cerrar',
         focusConfirm: false
     });

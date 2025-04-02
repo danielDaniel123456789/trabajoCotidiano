@@ -35,16 +35,7 @@ function resumeCotidiano(index) {
 
     console.log("Materia:", nomBreMateria);
 
-    // Función para obtener el emoji según el tipo de participación
-    function getParticipationEmoji(type) {
-        switch (type) {
-            case '0': return '🚫'; // No hubo participación
-            case '1': return '😐'; // Baja participación
-            case '2': return '🙂'; // Participación parcial
-            case '3': return '😁'; // Participación activa
-            default: return '❓'; // Valor desconocido
-        }
-    }
+
 
     // Crear la tabla de trabajo cotidiano
     let tareasDetails = `
@@ -59,7 +50,7 @@ function resumeCotidiano(index) {
             <tr>
                 <th>Fecha</th>
                 <th>Puntos</th>
-                <th>Emoji</th> <!-- Nueva columna de emojis -->
+              
                 <th>Editar</th> <!-- Cambiado de "Acción" a "Editar" -->
             </tr>
         </thead>
@@ -74,7 +65,7 @@ function resumeCotidiano(index) {
             
                 <td>${tarea.date}</td>
                 <td>${tarea.type}</td> <!-- Se muestra el tipo de participación -->
-                <td>${getParticipationEmoji(tarea.type)}</td> <!-- Emoji según el tipo -->
+      
                 <td>
                     <button class="btn btn-primary btn-sm"
                         onclick="editarTrabajoCotidiano(${tareaIndex}, ${student.id})">Editar</button>
