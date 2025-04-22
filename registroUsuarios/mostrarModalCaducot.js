@@ -4,29 +4,35 @@ function mostrarModalCaducot() {
     if (intentosRestantes === null) {
         intentosRestantes = 25;
     } else {
-        intentosRestantes = parseInt(intentosRestantes, 25);
+        intentosRestantes = parseInt(intentosRestantes, 10);
     }
 
     f = obtenerRegistroAsistencia();
     console.log(f);
-    // Obtener el código de activación de la función obtenerFechaRegistro
-    const claveAleatoria = obtenerRegistroAsistencia(); // Usamos el valor devuelto por obtenerFechaRegistro
+
+    const claveAleatoria = obtenerRegistroAsistencia();
 
     Swal.fire({
         html: `
         <div class="p-4">
             <h5>Código de Activación:</h5>
-            <h3>${obtenerRegistroAsistencia().slice(0, 3)}</h3> <!-- Aquí mostramos los primeros 3 caracteres de la clave -->
+            <h3>${obtenerRegistroAsistencia().slice(0, 3)}</h3>
             <input id="claveInput" class="swal2-input" placeholder="Escribe la clave completa">
-            <p>Intentos restantes: <b>${intentosRestantes}</b></p>
+            <p hidden>Intentos restantes: <b>${intentosRestantes}</b></p>
         </div>
         `,
         focusConfirm: false,
         showCancelButton: intentosRestantes > 1,
         confirmButtonText: 'Verificar',
-        allowOutsideClick: false, // Impide el cierre del modal si no se verifica la clave
+        cancelButtonText: 'Cancelar', // <-- Aquí agregamos esto
+        allowOutsideClick: false,
         preConfirm: () => {
             const claveInput = document.getElementById('claveInput').value.trim();
+
+            if (claveInput === '') {
+                Swal.showValidationMessage('Este campo es obligatorio');
+                return false;
+            }
 
             if (claveInput === claveAleatoria) {
                 Swal.fire({
@@ -56,9 +62,8 @@ function mostrarModalCaducot() {
                 }
             }
         },
-        footer: `<a href="https://wa.me/50685502748?text=Contacta%20a%20Daniel%20para%20que%20te%20pase%20la%20clave%20de%20acceso." target="_blank">¿No tienes la clave? Contacta a Daniel</a>`,
+        footer: `<h3>Para obtener la clave contacta al <span class="text-danger">85502748<span></h3>`,
     }).then((result) => {
-        // Si el usuario presiona "Cancelar", también se reduce un intento
         if (result.dismiss === Swal.DismissReason.cancel) {
             intentosRestantes--;
             localStorage.setItem('conteoCodigoActivacion', intentosRestantes.toString());

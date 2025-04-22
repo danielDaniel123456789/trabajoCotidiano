@@ -30,7 +30,7 @@ function usuarioRegistrado() {
     }
 }
 
-
+/*
 
 function mostrarModalCaducot() {
     // Seleccionar una clave aleatoria del array
@@ -70,7 +70,7 @@ function mostrarModalCaducot() {
         footer: `<a href="https://wa.me/50685502748?text=Contacta%20a%20Daniel%20para%20que%20te%20pase%20la%20clave%20de%20acceso." target="_blank">¿No tienes la clave? Contacta a Daniel</a>`
     });
 }
-
+*/
 
 // Función para pedir el valor completo de la clave
 function pedirValorCompleto(claveCompleta) {
