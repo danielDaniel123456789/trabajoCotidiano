@@ -99,6 +99,7 @@ function resumeCotidiano(index) {
         `,
         showCancelButton: true,
         cancelButtonText: 'Cancelar',
+        showCloseButton: true,
         focusConfirm: false
     }).then(result => {
         if (result.isConfirmed) {
