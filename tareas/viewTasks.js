@@ -54,7 +54,7 @@ function viewTasks(studentId) {
                 <td>
                     <button class="btn btn-warning btn-sm" onclick="editarTareaEstudiante(${student.id}, ${tarea.id})">Editar</button>
          
-                  <button class="btn btn-danger btn-sm" onclick="eliminarTareaEstudiante(${studentId}, ${tarea.id})">❌</button>
+                  <button class="btn btn-danger btn-sm" onclick="eliminarTareaEstudiante(${studentId}, ${tarea.id})">X</button>
                       </td>
             </tr>
         `;
@@ -77,25 +77,3 @@ function viewTasks(studentId) {
 }
 
 
-function eliminarTareaEstudiante(studentId, tareaId) {
-    const students = JSON.parse(localStorage.getItem('students')) || [];
-    const student = students.find(s => s.id === studentId);
-
-    if (!student) return;
-
-    Swal.fire({
-        title: '¿Eliminar tarea?',
-        text: 'Esta acción no se puede deshacer',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-    }).then(result => {
-        if (result.isConfirmed) {
-            student.tareas = student.tareas.filter(t => t.id !== tareaId);
-            localStorage.setItem('students', JSON.stringify(students));
-            Swal.fire('Eliminado', 'La tarea ha sido eliminada.', 'success');
-            verTareasEstudiante(studentId);
-        }
-    });
-}
