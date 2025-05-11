@@ -30,13 +30,24 @@ function trabajoCotidiano(studentId) {
     const currentMonth = currentDate.getMonth();
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate(); // Número de días en el mes
 
-    // Crear las opciones del selector de fechas
+    // Array con los nombres de los meses
+    const months = [
+        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+
+    // Crear las opciones del selector de fechas con el nombre del mes
     let dateOptions = '';
     for (let i = 1; i <= daysInMonth; i++) {
         const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
         const selected = currentDate.getDate() === i ? 'selected' : '';
-        dateOptions += `<option value="${dateStr}" ${selected}>${dateStr}</option>`;
+        const monthName = months[currentMonth]; // Obtener el nombre del mes
+        const displayDate = `${i} de ${monthName} ${currentYear}`; // Formato amigable para mostrar
+        dateOptions += `<option value="${dateStr}" ${selected}>${displayDate}</option>`;
     }
+
+    // Agregar la opción para cargar una fecha personalizada
+    dateOptions += `<option value="custom" class="bg-danger text-white">Cargar otra fecha</option>`;
 
     // Obtener el último ID registrado y aumentar en uno
     let lastId = Number(localStorage.getItem('lastTrabajoId')) || 0;
@@ -52,6 +63,10 @@ function trabajoCotidiano(studentId) {
         <select id="trabajoDate" class="swal-input">
             ${dateOptions}
         </select>
+        <div id="customDateContainer" style="display: none;">
+            <label for="customDate">Selecciona una fecha personalizada:</label>
+            <input type="date" id="customDate" class="swal-input">
+        </div>
         <br>
         <label for="trabajoType">Seleccionar desempeño:</label>
         <select id="trabajoType" class="swal-input">
@@ -66,40 +81,62 @@ function trabajoCotidiano(studentId) {
         `,
         showCancelButton: true,
         confirmButtonText: 'Guardar',
+        didOpen: () => {
+            const trabajoDate = document.getElementById('trabajoDate');
+            const customDateContainer = document.getElementById('customDateContainer');
+            const customDate = document.getElementById('customDate');
+
+            // Mostrar el campo para seleccionar una fecha personalizada si se elige la opción "Cargar otra fecha"
+            trabajoDate.addEventListener('change', () => {
+                if (trabajoDate.value === 'custom') {
+                    customDateContainer.style.display = 'block'; // Mostrar campo de fecha
+                } else {
+                    customDateContainer.style.display = 'none'; // Ocultar campo de fecha
+                }
+            });
+        },
         preConfirm: () => {
-            const date = document.getElementById('trabajoDate').value;
+            const trabajoDate = document.getElementById('trabajoDate').value;
+            const customDate = document.getElementById('customDate').value;
             const type = document.getElementById('trabajoType').value;
             const detail = document.getElementById('trabajoDetail').value.trim();
 
-            if (!type) {
-                Swal.showValidationMessage('Debe seleccionar un tipo de participación.');
-                return false;
-            }
+          // Si la opción "Cargar otra fecha" está seleccionada, usar la fecha personalizada
+const date = (trabajoDate === 'custom' && customDate) ? customDate : trabajoDate;
 
-            // Crear el objeto del trabajo cotidiano
-            const trabajo = { 
-                id: newId, 
-                date, // Usar la fecha seleccionada
-                type, 
-                materiaId: idMateria,
-                grupoId: idGrupo,
-                detail: detail || null
-            };
+if (!type) {
+    Swal.showValidationMessage('Debe seleccionar un tipo de participación.');
+    return false;
+}
 
-            // Asegurar que el array trabajoCotidiano existe
-            student.trabajoCotidiano = student.trabajoCotidiano || [];
-            student.trabajoCotidiano.push(trabajo);
+// Crear el objeto del trabajo cotidiano
+const trabajo = { 
+    id: newId, 
+    date, // Usar la fecha seleccionada o personalizada
+    type, 
+    materiaId: idMateria,
+    grupoId: idGrupo,
+    detail: detail || null
+};
 
-            // Guardar cambios en localStorage
-            localStorage.setItem('students', JSON.stringify(students));
-            localStorage.setItem('lastTrabajoId', newId); // Actualizar el último ID utilizado
+// Asegurar que el array trabajoCotidiano existe
+student.trabajoCotidiano = student.trabajoCotidiano || [];
+student.trabajoCotidiano.push(trabajo);
 
-            
+// Guardar cambios en localStorage
+localStorage.setItem('students', JSON.stringify(students));
+localStorage.setItem('lastTrabajoId', newId); // Actualizar el último ID utilizado
 
-            Swal.fire('Guardado', 'Trabajo cotidiano registrado correctamente.', 'success')
-                .then(() => {
-                    resumeCotidiano(studentId);
-                });
+// 📌 Obtener el mes desde la fecha seleccionada
+const mes = date.split("-")[1]; // devuelve "01", "02", ..., "12"
+
+Swal.fire('Guardado', 'Trabajo cotidiano registrado correctamente.', 'success')
+    .then(() => {
+        resumeCotidianoMes(studentId, mes); // ✅ ahora mes está definido
+    });
+
         }
     });
 }
+
+

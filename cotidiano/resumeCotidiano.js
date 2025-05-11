@@ -22,7 +22,6 @@ function resumeCotidiano(index) {
         nombreGrupo = grupo.nombre;
     }
 
-    // Paso 1: Preguntar el mes
     Swal.fire({
         title: 'Seleccione un mes',
         html: `
@@ -56,24 +55,23 @@ function resumeCotidiano(index) {
         const mesSeleccionado = result.value;
 
         let tareasDetails = `
-        <h6>0 = No hubo participación </h6>
-        <h6>1 = Baja participación de la clase </h6>
-        <h6>2 = Participación parcial </h6>
-        <h6>3 = Participación Activa durante la clase </h6>
-        <hr>
-          <div style="margin-bottom: 10px;">
-            <button class="btn btn-secondary" onclick="Swal.close()">Salir</button>
-        </div>
-        
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Puntos</th>
-                    <th>Editar</th>
-                </tr>
-            </thead>
-            <tbody>
+            <h6>0 = No hubo participación </h6>
+            <h6>1 = Baja participación de la clase </h6>
+            <h6>2 = Participación parcial </h6>
+            <h6>3 = Participación Activa durante la clase </h6>
+            <hr>
+            <div style="margin-bottom: 10px;">
+                <button class="btn btn-secondary" onclick="Swal.close()">Salir</button>
+            </div>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Puntos</th>
+                        <th>Editar</th>
+                    </tr>
+                </thead>
+                <tbody>
         `;
 
         let tareasFiltradas = [];
@@ -82,19 +80,23 @@ function resumeCotidiano(index) {
             tareasFiltradas = student.trabajoCotidiano.filter(tarea =>
                 tarea.date && tarea.date.split("-")[1] === mesSeleccionado
             );
+
+            // Ordenar por fecha descendente
+            tareasFiltradas.sort((a, b) => new Date(b.date) - new Date(a.date));
         }
 
         if (tareasFiltradas.length > 0) {
             tareasFiltradas.forEach((tarea, tareaIndex) => {
+                const puntosClass = Number(tarea.type) === 0 ? 'text-white fw-bold bg-danger' : '';
                 tareasDetails += `
-                <tr>
-                    <td>${tarea.date}</td>
-                    <td>${tarea.type}</td>
-                    <td>
-                        <button class="btn btn-primary btn-sm"
-                            onclick="editarTrabajoCotidiano(${tareaIndex}, ${student.id})">Editar</button>
-                    </td>
-                </tr>
+                    <tr>
+                        <td>${tarea.date}</td>
+                        <td class="${puntosClass}">${tarea.type}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm"
+                                onclick="editarTrabajoCotidiano(${tareaIndex}, ${student.id})">Editar</button>
+                        </td>
+                    </tr>
                 `;
             });
         } else {
@@ -109,7 +111,7 @@ function resumeCotidiano(index) {
 
         Swal.fire({
             html: `
-              <br>
+                <br>
                 <h4>Trabajo Cotidiano / Tareas</h4>
                 <hr>
                 <h6>Estudiante: ${student.name}</h6>
