@@ -40,6 +40,7 @@ function viewTasks(studentId) {
                 <tr>
                     <th>Puntos</th>
                     <th>Fecha de Entrega</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -50,6 +51,9 @@ function viewTasks(studentId) {
             <tr>
                 <td>${tarea.puntos || tarea.score || "N/A"}</td>
                 <td>${tarea.date}</td>
+                <td>
+                    <button class="btn btn-warning btn-sm" onclick="editarTareaEstudiante(${student.id}, ${tarea.id})">Editar</button>
+                </td>
             </tr>
         `;
     });
@@ -65,7 +69,6 @@ function viewTasks(studentId) {
         ${taskDetails}
         `,
         showCancelButton: true,
-        
         cancelButtonText: 'Cerrar',
         focusConfirm: false
     });
