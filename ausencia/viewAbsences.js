@@ -1,109 +1,115 @@
 function viewAbsences(studentId) {
-    console.log("ID recibido:", studentId);
     const students = JSON.parse(localStorage.getItem('students')) || [];
     const grupos = JSON.parse(localStorage.getItem('grupos')) || [];
-    let nombreGrupo = "";
+    const materiasList = JSON.parse(localStorage.getItem('materias')) || [];
 
-    console.log("Grupos:", grupos);
-
-    for (let i = 0; i < grupos.length; i++) {
-        if (grupos[i].id === studentId) {
-            nombreGrupo = grupos[i].nombre;
-            console.log(`Grupo encontrado: ID = ${grupos[i].id}, Nombre = ${grupos[i].nombre}`);
-            break;
-        }
-    }
-
-    // Buscar al estudiante por ID correctamente
-    const student = students.find(s => s.id === studentId);
-
+    const student = students.find(s => Number(s.id) === Number(studentId));
     if (!student) {
-        console.log("Estudiante no encontrado.");
         Swal.fire('Error', 'Estudiante no encontrado', 'error');
         return;
     }
 
-    console.log("Estudiante encontrado:", student);
+    const grupo = grupos.find(g => Number(g.id) === Number(student.groupId));
+    const nombreGrupo = grupo ? grupo.nombre : "Grupo no encontrado";
 
-    // Obtener todas las materias desde localStorage
-    const materiasList = JSON.parse(localStorage.getItem('materias')) || [];
-    console.log("Materias desde localStorage:", materiasList);
-
-    // Mapeamos los materiaId de las ausencias a sus nombres correspondientes
-    const materiaNames = student.absences.map(absence => {
-        const materia = materiasList.find(m => m.id === parseInt(absence.materiaId));
-        return materia ? materia.nombre : `Materia desconocida ${absence.materiaId}`;
-    });
-
-    console.log("Materias mapeadas para las ausencias del estudiante:");
-    console.table(materiaNames);
-
-    // Obtener la primera materia del estudiante
-    const selectedMateria = materiaNames[0] || 'Materia no disponible';
-
-    // Función para asignar el emoji según el tipo de ausencia
-    function getAbsenceEmoji(type) {
-        switch (type) {
-            case '4': return '✅'; // Presente
-            case '3': return '✔️'; // Ausencia Justificada
-            case '2': return '✔️'; // Tardía Justificada
-            case '1': return '⏰'; // Tardía no justificada
-            case '0': return '❌'; // Ausencia no justificada
-            default: return ''; // No definido
-        }
-    }
-
-    // Crear el contenido HTML para la tabla de ausencias
-    let absenceDetails = `
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Tipo</th>
-                    <th>⚖️</th> <!-- Nueva columna para el emoji -->
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-
-    student.absences.forEach((absence, absenceIndex) => {
-        absenceDetails += `
-            <tr>
-                <td>${absence.date}</td>
-                <td>${absence.type}</td>
-                <td>${getAbsenceEmoji(absence.type)}</td> <!-- Mostrar el emoji -->
-                <td>
-                    <button class="btn btn-success btn-sm" onclick="editAbsence(${studentId}, ${absenceIndex}, ${absence.id})">✏️</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteAbsence(${studentId}, ${absence.id})">X</button>
-                </td>
-            </tr>
-        `;
-    });
-
-    absenceDetails += `</tbody></table>`;
-
-    // Mostrar SweetAlert2 con los datos del estudiante, grupo, materia y ausencias
+    // Paso 1: Seleccionar mes
     Swal.fire({
-        html: `
-        <br>
-        <h6> 
-            4: Presente ✅
-            3: Ausencia Justificada ✔️
-            2: Tardía justificada ✔️
-            1: Tardía no justificada 2=1 Ausencia ⏰
-            0: Ausencia no justificada ❌
-        </h6>
-        <h5>Informe de Ausencias de ${student.name} - Materia: ${selectedMateria} - Grupo ${nombreGrupo}:</h5>
-        ${absenceDetails}
-        `,
-        showCloseButton: true,
+        title: 'Seleccione el mes',
+        input: 'select',
+        inputOptions: new Map([
+            ['01', 'Enero'],
+            ['02', 'Febrero'],
+            ['03', 'Marzo'],
+            ['04', 'Abril'],
+            ['05', 'Mayo'],
+            ['06', 'Junio'],
+            ['07', 'Julio'],
+            ['08', 'Agosto'],
+            ['09', 'Septiembre'],
+            ['10', 'Octubre'],
+            ['11', 'Noviembre'],
+            ['12', 'Diciembre']
+        ]),
+        inputPlaceholder: 'Mes',
         showCancelButton: true,
-        cancelButtonText: 'Cancelar',
-        focusConfirm: false
+        confirmButtonText: 'Ver ausencias'
     }).then(result => {
-        if (result.isConfirmed) {
-            Swal.fire('Acción confirmada', 'Has revisado las ausencias del estudiante.', 'success');
+        if (!result.isConfirmed) return;
+
+        const selectedMonth = result.value;
+
+        // Emojis según tipo
+        const getAbsenceEmoji = (type) => {
+            switch (type) {
+                case '4': return '✅'; // Presente
+                case '3': return '✔️'; // Justificada
+                case '2': return '✔️'; // Tardía justificada
+                case '1': return '⏰'; // Tardía no justificada
+                case '0': return '❌'; // Ausente
+                default: return '';
+            }
+        };
+
+        const filteredAbsences = Array.isArray(student.absences)
+            ? student.absences.filter(abs => abs.date?.split?.('-')[1] === selectedMonth)
+            : [];
+
+        if (filteredAbsences.length === 0) {
+            Swal.fire('Sin datos', 'No hay ausencias registradas para ese mes.', 'info');
+            return;
         }
+
+        let absenceDetails = `
+            <h6>4 = Presente ✅</h6>
+            <h6>3 = Ausencia Justificada ✔️</h6>
+            <h6>2 = Tardía justificada ✔️</h6>
+            <h6>1 = Tardía no justificada ⏰</h6>
+            <h6>0 = Ausencia no justificada ❌</h6>
+              <button class="btn btn-secondary" onclick="Swal.close()">Salir</button>
+            <hr>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>⚖️</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        filteredAbsences.forEach((absence, index) => {
+            const materia = materiasList.find(m => m.id === parseInt(absence.materiaId));
+            const nombreMateria = materia ? materia.nombre : 'Materia desconocida';
+            absenceDetails += `
+                <tr>
+                    <td>${absence.date}</td>
+                    <td>${absence.type}</td>
+                    <td>${getAbsenceEmoji(absence.type)}</td>
+                    <td>
+                        <button class="btn btn-success btn-sm" onclick="editAbsence(${studentId}, ${index}, ${absence.id})">✏️</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteAbsence(${studentId}, ${absence.id})">X</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        absenceDetails += `</tbody></table>`;
+
+        Swal.fire({
+            html: `
+                <br>
+                <h4>Ausencias</h4>
+                <hr>
+                <h6>Estudiante: ${student.name}</h6>
+                <h6>Grupo: ${nombreGrupo}</h6>
+                ${absenceDetails}
+            `,
+            showCancelButton: true,
+            cancelButtonText: 'Cerrar',
+            showCloseButton: true,
+            focusConfirm: false
+        });
     });
 }

@@ -1,10 +1,8 @@
 function resumeCotidiano(index) {
-    // Obtener los datos de localStorage
     const students = JSON.parse(localStorage.getItem('students')) || [];
     const grupos = JSON.parse(localStorage.getItem('grupos')) || [];
     const materias = JSON.parse(localStorage.getItem('materias')) || [];
 
-    // Buscar al estudiante por ID
     const student = students.find(st => Number(st.id) === Number(index));
     if (!student) {
         Swal.fire({
@@ -12,15 +10,9 @@ function resumeCotidiano(index) {
             text: "No se encontró el estudiante.",
             icon: "error",
         });
-        console.log("No hay datos");
         return;
     }
 
-    console.log("ID:", student.id);
-    console.log("Nombre:", student.name);
-    console.log("Cédula:", student.cedula);
-
-    // Buscar la materia
     const materia = materias.find(m => Number(m.id) === Number(student.materiaId));
     const nomBreMateria = materia ? materia.nombre : "Materia no encontrada";
 
@@ -28,84 +20,107 @@ function resumeCotidiano(index) {
     const grupo = grupos.find(gr => Number(gr.id) === Number(student.groupId));
     if (grupo) {
         nombreGrupo = grupo.nombre;
-        console.log(`Grupo encontrado: ID = ${grupo.id}, Nombre = ${grupo.nombre}`);
-    } else {
-        console.log("No se encontró el grupo para el estudiante.");
     }
 
-    console.log("Materia:", nomBreMateria);
-
-
-
-    // Crear la tabla de trabajo cotidiano
-    let tareasDetails = `
-    <h6>0 = No hubo participación </h6>
-    <h6>1 = Baja participación de la clase </h6>
-    <h6>2 = Participación parcial </h6>
-    <h6>3 = Participación Activa durante la clase </h6>
-    <hr>
-
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Fecha</th>
-                <th>Puntos</th>
-              
-                <th>Editar</th> <!-- Cambiado de "Acción" a "Editar" -->
-            </tr>
-        </thead>
-        <tbody>
-    `;
-
-    // Verificar que `trabajoCotidiano` existe y es un array
-    if (Array.isArray(student.trabajoCotidiano)) {
-        student.trabajoCotidiano.forEach((tarea, tareaIndex) => {
-            tareasDetails += `
-            <tr>
-            
-                <td>${tarea.date}</td>
-                <td>${tarea.type}</td> <!-- Se muestra el tipo de participación -->
-      
-                <td>
-                    <button class="btn btn-primary btn-sm"
-                        onclick="editarTrabajoCotidiano(${tareaIndex}, ${student.id})">Editar</button>
-                </td>
-            </tr>
-            `;
-        });
-    } else {
-        tareasDetails += `
-            <tr>
-                <td colspan="4" class="text-center">No se encontraron tareas registradas.</td>
-            </tr>
-        `;
-    }
-
-    tareasDetails += `
-        </tbody>
-    </table>`;
-
-    // Mostrar SweetAlert2 con los datos del estudiante, grupo y materia
+    // Paso 1: Preguntar el mes
     Swal.fire({
+        title: 'Seleccione un mes',
         html: `
-        <br>
-        <h4>Trabajo Cotidiano / Tareas</h4>
-        <hr>
-        <h6>Estudiante: ${student.name}</h6>
-        <h6>Grupo: ${nombreGrupo}</h6>
-        <h6>Materia: ${nomBreMateria}</h6>
-        <hr>
-        ${tareasDetails}
+            <select id="mesSelect" class="swal2-select">
+                <option value="">-- Seleccione --</option>
+                <option value="01">Enero</option>
+                <option value="02">Febrero</option>
+                <option value="03">Marzo</option>
+                <option value="04">Abril</option>
+                <option value="05">Mayo</option>
+                <option value="06">Junio</option>
+                <option value="07">Julio</option>
+                <option value="08">Agosto</option>
+                <option value="09">Septiembre</option>
+                <option value="10">Octubre</option>
+                <option value="11">Noviembre</option>
+                <option value="12">Diciembre</option>
+            </select>
         `,
+        confirmButtonText: 'Filtrar',
         showCancelButton: true,
-        cancelButtonText: 'Cancelar',
-        showCloseButton: true,
-        focusConfirm: false
-    }).then(result => {
-        if (result.isConfirmed) {
-            Swal.fire('Acción confirmada', 'Has revisado las tareas del estudiante.', 'success');
+        preConfirm: () => {
+            const mes = document.getElementById('mesSelect').value;
+            if (!mes) {
+                Swal.showValidationMessage('Debe seleccionar un mes');
+            }
+            return mes;
         }
+    }).then(result => {
+        if (!result.isConfirmed) return;
+        const mesSeleccionado = result.value;
+
+        let tareasDetails = `
+        <h6>0 = No hubo participación </h6>
+        <h6>1 = Baja participación de la clase </h6>
+        <h6>2 = Participación parcial </h6>
+        <h6>3 = Participación Activa durante la clase </h6>
+        <hr>
+          <div style="margin-bottom: 10px;">
+            <button class="btn btn-secondary" onclick="Swal.close()">Salir</button>
+        </div>
+        
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Puntos</th>
+                    <th>Editar</th>
+                </tr>
+            </thead>
+            <tbody>
+        `;
+
+        let tareasFiltradas = [];
+
+        if (Array.isArray(student.trabajoCotidiano)) {
+            tareasFiltradas = student.trabajoCotidiano.filter(tarea =>
+                tarea.date && tarea.date.split("-")[1] === mesSeleccionado
+            );
+        }
+
+        if (tareasFiltradas.length > 0) {
+            tareasFiltradas.forEach((tarea, tareaIndex) => {
+                tareasDetails += `
+                <tr>
+                    <td>${tarea.date}</td>
+                    <td>${tarea.type}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm"
+                            onclick="editarTrabajoCotidiano(${tareaIndex}, ${student.id})">Editar</button>
+                    </td>
+                </tr>
+                `;
+            });
+        } else {
+            tareasDetails += `
+                <tr>
+                    <td colspan="3" class="text-center">No se encontraron tareas en ese mes.</td>
+                </tr>
+            `;
+        }
+
+        tareasDetails += `</tbody></table>`;
+
+        Swal.fire({
+            html: `
+              <br>
+                <h4>Trabajo Cotidiano / Tareas</h4>
+                <hr>
+                <h6>Estudiante: ${student.name}</h6>
+                <h6>Grupo: ${nombreGrupo}</h6>
+                <h6>Materia: ${nomBreMateria}</h6>
+                <hr>
+                ${tareasDetails}
+            `,
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            showCloseButton: true,
+        });
     });
 }
-
-
