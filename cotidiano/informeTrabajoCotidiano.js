@@ -1,7 +1,17 @@
+
+
 function informeTrabajoCotidiano() {
     const grupos = JSON.parse(localStorage.getItem('grupos')) || [];
     const materias = JSON.parse(localStorage.getItem('materias')) || [];
     const estudiantes = JSON.parse(localStorage.getItem('students')) || [];
+    const meses = [
+        { id: 1, nombre: 'Enero' }, { id: 2, nombre: 'Febrero' },
+        { id: 3, nombre: 'Marzo' }, { id: 4, nombre: 'Abril' },
+        { id: 5, nombre: 'Mayo' }, { id: 6, nombre: 'Junio' },
+        { id: 7, nombre: 'Julio' }, { id: 8, nombre: 'Agosto' },
+        { id: 9, nombre: 'Septiembre' }, { id: 10, nombre: 'Octubre' },
+        { id: 11, nombre: 'Noviembre' }, { id: 12, nombre: 'Diciembre' }
+    ];
 
     if (grupos.length === 0) {
         Swal.fire('Error', 'No se encontraron grupos en el almacenamiento local.', 'error');
@@ -14,19 +24,33 @@ function informeTrabajoCotidiano() {
     });
     selectGruposHTML += '</select>';
 
+    let selectMesHTML = '<select id="mesSelect" class="swal2-select">';
+    meses.forEach(mes => selectMesHTML += `<option value="${mes.id}">${mes.nombre}</option>`);
+    selectMesHTML += '</select>';
+
     Swal.fire({
-        title: 'Selecciona un grupo',
-        html: selectGruposHTML,
+        title: 'Selecciona un grupo y un mes',
+        html: `
+            <label>Grupo:</label> ${selectGruposHTML} <br><br>
+            <label>Mes:</label> ${selectMesHTML}
+        `,
         showCancelButton: true,
         showCloseButton: true,
+        
         confirmButtonText: 'Siguiente',
         preConfirm: () => {
             const grupoSeleccionado = document.getElementById('grupoSelect').value;
-            return grupoSeleccionado ? grupoSeleccionado : Swal.showValidationMessage('Por favor selecciona un grupo');
+            const mesSeleccionado = document.getElementById('mesSelect').value;
+            if (!grupoSeleccionado || !mesSeleccionado) {
+                Swal.showValidationMessage('Por favor selecciona un grupo y un mes');
+                return false;
+            }
+            return { grupo: grupoSeleccionado, mes: mesSeleccionado };
         }
     }).then((result) => {
         if (result.isConfirmed) {
-            const grupoSeleccionado = grupos.find(grupo => grupo.id.toString() === result.value.toString());
+            const { grupo, mes } = result.value;
+            const grupoSeleccionado = grupos.find(g => g.id.toString() === grupo.toString());
 
             if (materias.length === 0) {
                 Swal.fire('Error', 'No se encontraron materias en el almacenamiento local.', 'error');
@@ -62,7 +86,10 @@ function informeTrabajoCotidiano() {
 
                     estudiantesDelGrupo.forEach(estudiante => {
                         let trabajosEstudiante = estudiante.trabajoCotidiano
-                            ? estudiante.trabajoCotidiano.map(trabajo => trabajo.type)
+                            ? estudiante.trabajoCotidiano.filter(trabajo => {
+                                const [año, mesTrabajo] = trabajo.date.split('-').map(Number);
+                                return mesTrabajo === parseInt(mes);
+                            }).map(trabajo => trabajo.type)
                             : [];
 
                         trabajosPorEstudiante[estudiante.name] = trabajosEstudiante;
@@ -70,22 +97,29 @@ function informeTrabajoCotidiano() {
                     });
 
                     let tableHTML = `
+
+                    <div id="avisoCopiado"  class="alert alert-primary" style="display: none; ">
+   <h2>"Ya lo copié. Ahora abrí WhatsApp y pegalo."</h2>
+
+</div>
+
+
                     <div style="overflow-x: auto;">
                         <table class="table" id="trabajoTable">
                             <thead>
                                 <tr>
-                                    <th>✅</th>`;
-
-                    for (let i = 1; i <= maxTrabajos; i++) {
-                        tableHTML += `<th>✅</th>`;
-                    }
-
-                    tableHTML += `</tr>
+                                    <th><i class="fa fa-user-circle-o" aria-hidden="true"></i></th>
+                                    ${Array.from({ length: maxTrabajos }, (_, i) => `<th> #</th>`).join('')}
+                                </tr>
                             </thead>
                             <tbody>`;
 
                     estudiantesDelGrupo.forEach(estudiante => {
-                        tableHTML += `<tr><td>${estudiante.name}</td>`;
+                        const inicial = estudiante.name.charAt(0).toUpperCase(); // Obtener la inicial
+                       // Cambiar el avatar para incluir el atributo data-nombre con el nombre del estudiante
+const avatarHTML = `<div class="avatar" data-nombre="${estudiante.name}">${inicial}</div>`; 
+
+                        tableHTML += `<tr><td>${avatarHTML}</td>`;
 
                         let trabajos = trabajosPorEstudiante[estudiante.name] || [];
                         for (let i = 0; i < maxTrabajos; i++) {
@@ -109,7 +143,8 @@ function informeTrabajoCotidiano() {
                             <button class="swal2-confirm swal2-styled" onclick="copiarTrabajos()">Copiar trabajos</button>
                         </div>
                         ${tableHTML}`,
-                        width: '1000px' // Ancho suficiente para que la tabla tenga espacio
+                        width: '1000px',
+                           showCloseButton: true ,
                     });
                 }
             });
@@ -119,35 +154,41 @@ function informeTrabajoCotidiano() {
 
 function copiarNombres() {
     let nombres = [];
-    document.querySelectorAll("#trabajoTable tbody tr td:first-child").forEach(td => {
-        nombres.push(td.innerText.trim());
+    document.querySelectorAll("#trabajoTable tbody tr").forEach(tr => {
+        let nombre = tr.querySelector("td:first-child .avatar").getAttribute("data-nombre");
+        nombres.push(nombre);
     });
 
     const textoCopiar = nombres.join("\n");
 
     navigator.clipboard.writeText(textoCopiar).then(() => {
-        const footer = document.getElementById('footerCopiado');
-        if (footer) {
-            footer.style.display = 'block';
-            setTimeout(() => {
-                footer.style.display = 'none';
-            }, 4000);
-        }
-        Swal.fire('Copiado', 'Nombres copiados al portapapeles', 'success');
-    }).catch(() => {
-        Swal.fire('Error', 'No se pudieron copiar los nombres', 'error');
+        // Mostrar el aviso de copiado
+        document.getElementById("avisoCopiado").style.display = "block";
+        setTimeout(() => {
+            document.getElementById("avisoCopiado").style.display = "none";
+        }, 5000);
+    }).catch(err => {
+        console.error('Error al copiar nombres:', err);
     });
 }
-
 
 function copiarTrabajos() {
     let trabajos = [];
     document.querySelectorAll("#trabajoTable tbody tr").forEach(tr => {
-        let celdas = [...tr.querySelectorAll("td:not(:first-child)")].map(td => td.textContent);
-        trabajos.push(celdas.join("\t")); // Separa por tabulaciones para facilitar el pegado en Excel
+        let celdas = [...tr.querySelectorAll("td:not(:first-child)")].map(td => td.textContent.trim());
+        trabajos.push(celdas.join("\t"));
     });
 
-    navigator.clipboard.writeText(trabajos.join("\n")).then(() => {
-        Swal.fire('Copiado', 'Trabajos copiados al portapapeles', 'success');
+    const textoCopiar = trabajos.join("\n");
+
+    navigator.clipboard.writeText(textoCopiar).then(() => {
+        // Mostrar el aviso de copiado
+        document.getElementById("avisoCopiado").style.display = "block";
+        setTimeout(() => {
+            document.getElementById("avisoCopiado").style.display = "none";
+        }, 5000);
+    }).catch(err => {
+        console.error('Error al copiar trabajos:', err);
     });
 }
+

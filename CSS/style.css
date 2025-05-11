@@ -79,6 +79,7 @@ div:where(.swal2-container) div:where(.swal2-html-container) {
     align-items: center;
     justify-content: center;
     color: white;
+    background-color: #007bff;
     font-weight: bold;
     font-size: 18px;
     -webkit-box-shadow: 4px 25px 37px -6px rgba(0,0,0,0.75);
