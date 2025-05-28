@@ -1,6 +1,7 @@
 function addGrupo() {
     Swal.fire({
-        title: 'Ingrese el nombre del grupo',
+        title: 'Ingrese el nombre del grupo o el nombre de la sección',
+        text: 'Este nombre se utilizará para identificar el grupo en el sistema.',
         input: 'text',
         inputPlaceholder: 'Ej: Grupo A',
         showCancelButton: true,
