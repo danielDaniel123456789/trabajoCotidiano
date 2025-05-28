@@ -42,8 +42,17 @@ function addMateria() {
                     console.log("Registro de asistencia creado:", registro); // Solo para depuración
                 }
 
-                Swal.fire('Agregada', 'La materia ha sido agregada correctamente.', 'success');
-                misMaterias(); // Recargar la lista de materias
+        Swal.fire({
+  icon: 'success',
+  title: 'Agregada',
+  html: `
+    La materia ha sido agregada correctamente.<br><br>
+    El siguiente paso es crear el grupo.<br><br>
+    <button class="btn fondoBody mb-2 w-100" onclick="addGrupo()">2- Crear un Grupo</button>
+  `
+});
+
+                //opciones(); // Recargar la lista de materias
             } else {
                 Swal.showValidationMessage('Por favor ingrese el nombre de la materia');
             }

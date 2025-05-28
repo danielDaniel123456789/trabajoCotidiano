@@ -1,34 +1,65 @@
 function addGrupo() {
-    Swal.fire({
-        title: 'Ingrese el nombre del grupo o el nombre de la sección',
-        text: 'Este nombre se utilizará para identificar el grupo en el sistema.',
-        input: 'text',
-        inputPlaceholder: 'Ej: Grupo A',
-        showCancelButton: true,
-        confirmButtonText: 'Agregar',
-        cancelButtonText: 'Cancelar',
-        inputValidator: (value) => {
-            if (!value) {
-                return 'Debe ingresar un nombre';
-            }
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            let grupos = JSON.parse(localStorage.getItem('grupos')) || [];
+  Swal.fire({
+    title: 'Crear nuevo grupo',
+    text: 'Ingrese el nombre del grupo o sección para identificarlo en el sistema.',
+    input: 'text',
+    inputPlaceholder: 'Ejemplo: Seccion 7-1',
+    showCancelButton: true,
+    confirmButtonText: 'Agregar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    inputValidator: (value) => {
+      if (!value.trim()) {
+        return 'Debe ingresar un nombre válido';
+      }
+      return null;
+    },
+    preConfirm: (value) => {
+      if (!value || !value.trim()) {
+        Swal.showValidationMessage('Debe ingresar un nombre válido');
+        return false;
+      }
+      return value.trim();
+    },
+    allowOutsideClick: () => !Swal.isLoading()
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.showLoading();
 
-            // Generar un ID automático
-            let nuevoId = grupos.length > 0 ? grupos[grupos.length - 1].id + 1 : 1;
+      setTimeout(() => {
+        let grupos = JSON.parse(localStorage.getItem('grupos')) || [];
 
-            // Crear el nuevo grupo con ID
-            let nuevoGrupo = {
-                id: nuevoId,
-                nombre: result.value
-            };
+        let nuevoId = grupos.length > 0 ? grupos[grupos.length - 1].id + 1 : 1;
 
-            grupos.push(nuevoGrupo);
-            localStorage.setItem('grupos', JSON.stringify(grupos));
+        let nuevoGrupo = {
+          id: nuevoId,
+          nombre: result.value
+        };
 
-            Swal.fire('Agregado', 'El grupo ha sido guardado', 'success');
-        }
-    });
+        grupos.push(nuevoGrupo);
+        localStorage.setItem('grupos', JSON.stringify(grupos));
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Agregado',
+          html: `
+            El grupo ha sido guardado correctamente.<br><br>
+            Falta el siguiente paso:<br>
+            <button class="btn fondoBody mb-2 w-100" onclick="importarEstudiantes()">3- Importar Estudiantes</button>
+          `,
+          confirmButtonText: 'Cerrar',
+          confirmButtonColor: '#3085d6',
+          showCloseButton: true,
+          didOpen: () => {
+            // Opcional: prevenir que SweetAlert cierre cuando se hace clic dentro del botón
+            const btn = Swal.getHtmlContainer().querySelector('button');
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+            });
+          }
+        });
+      }, 700);
+    }
+  });
 }

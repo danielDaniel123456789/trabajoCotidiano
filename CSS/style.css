@@ -24,9 +24,19 @@ div:where(.swal2-container) div:where(.swal2-html-container) {
       padding-left: 4px;
       padding-right: 4px;
   }
+
+
           body {
               font-family: Arial, sans-serif;
               background-color: #1c2c54 ;
+          }
+
+          .fondoBody {
+              background-color: #1c2c54;
+              color: white;
+          }
+          .colorTextoBody{
+             color: #1c2c54;
           }
           .colorFooter{
             background-color: #1c2c54;
