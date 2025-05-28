@@ -109,17 +109,44 @@ function informeTrabajoCotidiano() {
                             <thead>
                                 <tr>
                                     <th><i class="fa fa-user-circle-o" aria-hidden="true"></i></th>
-                                    ${Array.from({ length: maxTrabajos }, (_, i) => `<th> #</th>`).join('')}
+       ${Array.from({ length: maxTrabajos }, (_, i) => {
+    let fecha = '';
+for (const estudiante of estudiantesDelGrupo) {
+    const trabajosFiltrados = estudiante.trabajoCotidiano
+        ? estudiante.trabajoCotidiano.filter(trabajo => {
+            const [año, mesTrabajo] = trabajo.date.split('-').map(Number);
+            return mesTrabajo === parseInt(mes);
+        })
+        : [];
+
+    if (trabajosFiltrados[i]) {
+        fecha = trabajosFiltrados[i].date;
+        break;
+    }
+}
+
+
+    let fechaFormateada = '#';
+    if (fecha) {
+        const [año, mes, dia] = fecha.split('-');
+        const mesesAbrev = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+        const mesAbrev = mesesAbrev[parseInt(mes, 10) - 1];
+        fechaFormateada = `<span class="mes-chico">${mesAbrev}</span> ${dia}`;
+    }
+
+    return `<th><div class="fecha-horizontal">${fechaFormateada}</div></th>`;
+}).join('')}
+
+
+
+
                                 </tr>
                             </thead>
                             <tbody>`;
 
                     estudiantesDelGrupo.forEach(estudiante => {
-                        const inicial = estudiante.name.charAt(0).toUpperCase(); // Obtener la inicial
-                       // Cambiar el avatar para incluir el atributo data-nombre con el nombre del estudiante
-const avatarHTML = `<div class="avatar" data-nombre="${estudiante.name}">${inicial}</div>`; 
+                     tableHTML += `<tr><td><div style="max-width: 150px; overflow-x: auto; white-space: nowrap;">${estudiante.name}</div></td>`;
 
-                        tableHTML += `<tr><td>${avatarHTML}</td>`;
 
                         let trabajos = trabajosPorEstudiante[estudiante.name] || [];
                         for (let i = 0; i < maxTrabajos; i++) {

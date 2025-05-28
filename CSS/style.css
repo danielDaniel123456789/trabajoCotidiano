@@ -26,7 +26,10 @@ div:where(.swal2-container) div:where(.swal2-html-container) {
   }
           body {
               font-family: Arial, sans-serif;
-              background-color: #343a40;
+              background-color: #1c2c54 ;
+          }
+          .colorFooter{
+            background-color: #1c2c54;
           }
   
           .student-card {
@@ -40,8 +43,30 @@ div:where(.swal2-container) div:where(.swal2-html-container) {
           #listaEstudiantes {
       height: 90vh;
       overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: #888 #f1f1f1;
+
+  }
+.fecha-horizontal {
+    font-size: 14px;
+    white-space: nowrap;
+    text-align: center;
+    writing-mode: horizontal-tb;
+}
+
+.mes-chico {
+    font-size: 10px;
+    vertical-align: middle;
+    color: #666;
+}
+
+
+#iconoHeader{
+    position: absolute;
+    left: -10px;
+    top: -10px;
+    z-index: -1;
+}
+  .fondoFooter{
+    background-color: #435c75;
   }
           .footer {
       position: fixed;
@@ -49,15 +74,14 @@ div:where(.swal2-container) div:where(.swal2-html-container) {
       right: 0;
       bottom: 0;
       width: 100%;
-      background-color: #343a40;
+      background-color: #242c5c;
       color: white;
       display: flex;
       justify-content: space-between;
       align-items: center;
       height: 70px;
-      background: linear-gradient(to bottom, #343a40, #495057);
-      border-top: 4px solid #435c75; /* Borde de color atractivo */
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra sutil en el borde */
+
+     
   }
   
   .espacioNombre{
