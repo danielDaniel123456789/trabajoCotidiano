@@ -108,7 +108,7 @@ function informeTrabajoCotidiano() {
                         <table class="table" id="trabajoTable">
                             <thead>
                                 <tr>
-                                    <th><i class="fa fa-user-circle-o" aria-hidden="true"></i></th>
+                                    <th>👤</i></th>
        ${Array.from({ length: maxTrabajos }, (_, i) => {
     let fecha = '';
 for (const estudiante of estudiantesDelGrupo) {
