@@ -145,8 +145,10 @@ async function informeTrabajoCotidianoYEnviarCorreo() {
             script.onerror = reject;
             document.head.appendChild(script);
         });
-        emailjs.init('Ht5K1L8MrR31t2m-T'); // Tu User ID de EmailJS
     }
+
+    // Inicializar EmailJS
+    emailjs.init('Ht5K1L8MrR31t2m-T'); // Reemplaza con tu User ID de EmailJS
 
     // Enviar correo con el HTML generado
     try {

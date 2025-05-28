@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Enviar tabla por EmailJS</title>
+
+  <style>
+    .field {
+      margin-bottom: 10px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      color: #777;
+    }
+
+    .field input {
+      display: block;
+      min-width: 250px;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    input[type="submit"] {
+      display: block;
+      padding: 6px 30px;
+      font-size: 14px;
+      background-color: #4460AA;
+      color: #fff;
+      border: none;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    table, th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <form id="form">
+    <div class="field">
+      <label for="email">Email destinatario</label>
+      <input type="text" name="email" id="email" required>
+    </div>
+
+    <!-- Campo oculto donde se colocará el HTML de la tabla -->
+    <input type="hidden" name="tabla_html" id="tabla_html">
+
+    <input type="submit" id="button" value="Enviar Tabla por Email">
+  </form>
+
+  <table id="tablaDatos">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Edad</th>
+        <th>País</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Daniel</td>
+        <td>30</td>
+        <td>Costa Rica</td>
+      </tr>
+      <tr>
+        <td>Ana</td>
+        <td>25</td>
+        <td>Colombia</td>
+      </tr>
+      <tr>
+        <td>Pedro</td>
+        <td>28</td>
+        <td>México</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>
+    emailjs.init('Ht5K1L8MrR31t2m-T');
+
+    const form = document.getElementById('form');
+    const btn = document.getElementById('button');
+    const tablaHTMLInput = document.getElementById('tabla_html');
+
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+      btn.value = 'Enviando...';
+
+      // Extraer la tabla HTML visible y meterla en el input oculto
+      const tabla = document.getElementById('tablaDatos');
+      tablaHTMLInput.value = tabla.outerHTML;
+
+      emailjs.sendForm('default_service', 'template_6hfqphs', this)
+        .then(() => {
+          btn.value = 'Enviar Tabla por Email';
+          alert('¡Correo enviado con la tabla!');
+        }, (err) => {
+          btn.value = 'Enviar Tabla por Email';
+          alert('Error al enviar: ' + JSON.stringify(err));
+        });
+    });
+  </script>
+</body>
+</html>
