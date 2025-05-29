@@ -2,56 +2,70 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require 'path/to/PHPMailer/src/Exception.php';
-require 'path/to/PHPMailer/src/PHPMailer.php';
-require 'path/to/PHPMailer/src/SMTP.php';
+require 'phpmailer/src/Exception.php';
+require 'phpmailer/src/PHPMailer.php';
+require 'phpmailer/src/SMTP.php';
 
-$mail = new PHPMailer(true);
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $nombre    = trim($_POST['nombre']);
+    $email     = trim($_POST['email']);
+    $mensaje   = trim($_POST['mensaje']);
+    $receptor  = trim($_POST['receptor']);
 
-try {
-    // Configuración del servidor SMTP
-    $mail->isSMTP();
-    $mail->Host       = 'server359.web-hosting.com';  // Servidor SMTP
-    $mail->SMTPAuth   = true;
-    $mail->Username   = 'asistencia@facturahacienda.com'; // Tu usuario SMTP (email)
-    $mail->Password   = 'JJD-UQLKK(Vn';                 // Tu contraseña SMTP
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;    // SSL para puerto 465
-    $mail->Port       = 465;
+    // Validaciones básicas
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo "Email del remitente no válido.";
+        exit;
+    }
 
-    // Debug para ver la conexión SMTP
-    $mail->SMTPDebug  = 2;  // 0 = sin debug, 1 = mensajes cliente, 2 = mensajes cliente + servidor
-    $mail->Debugoutput = 'html';
+    if (!filter_var($receptor, FILTER_VALIDATE_EMAIL)) {
+        echo "Email del receptor no válido.";
+        exit;
+    }
 
-    // Destinatarios
-    $mail->setFrom('asistencia@facturahacienda.com', 'Tu Nombre o Empresa');
-    $mail->addAddress('destinatario@ejemplo.com', 'Nombre Destinatario'); // Agrega un destinatario
+    if (empty($nombre) || empty($mensaje)) {
+        echo "Todos los campos son obligatorios.";
+        exit;
+    }
 
-    // Contenido
-    $mail->isHTML(true);
-    $mail->Subject = 'Prueba de correo desde PHPMailer';
-    $mail->Body    = '<b>Este es un correo de prueba enviado con PHPMailer usando SMTP.</b>';
-    $mail->AltBody = 'Este es un correo de prueba enviado con PHPMailer usando SMTP.';
+    $mail = new PHPMailer(true);
 
-    $mail->send();
-    echo 'Correo enviado correctamente';
-} catch (Exception $e) {
-    echo "Error al enviar el correo: {$mail->ErrorInfo}";
+    try {
+        // Configuración del servidor SMTP
+        $mail->isSMTP();
+        $mail->Host       = 'server359.web-hosting.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'asistencia@facturahacienda.com';
+        $mail->Password   = 'JJD-UQLKK(Vn';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Port       = 465;
+
+        // Debug opcional
+        $mail->SMTPDebug  = 0; // Pon 2 para depuración
+        $mail->Debugoutput = 'html';
+
+        // Configurar remitente y destinatario
+        $mail->setFrom('asistencia@facturahacienda.com', 'Formulario Web');
+        $mail->addAddress($receptor, 'Receptor del mensaje');
+        $mail->addReplyTo($email, $nombre);
+
+        // Contenido del mensaje
+        $mail->isHTML(true);
+        $mail->Subject = "Nuevo mensaje de $nombre";
+        $mail->Body    = "
+            <h3>Nuevo mensaje desde el formulario web</h3>
+            <p><strong>Nombre:</strong> $nombre</p>
+            <p><strong>Email:</strong> $email</p>
+            <p><strong>Mensaje:</strong><br>$mensaje</p>
+        ";
+        $mail->AltBody = "Nombre: $nombre\nEmail: $email\nMensaje:\n$mensaje";
+
+        $mail->send();
+        echo 'Mensaje enviado correctamente.';
+    } catch (Exception $e) {
+        echo "Error al enviar el mensaje: {$mail->ErrorInfo}";
+    }
+} else {
+    echo "Acceso denegado.";
 }
-
-
-<!-- Formulario HTML -->
-<form method="POST" action="">
-  <label for="nombre">Nombre:</label><br>
-  <input type="text" id="nombre" name="nombre" required><br><br>
-
-  <label for="email">Email:</label><br>
-  <input type="email" id="email" name="email" required><br><br>
-
-  <label for="mensaje">Mensaje:</label><br>
-  <textarea id="mensaje" name="mensaje" rows="5" required></textarea><br><br>
-
-  <label for="receptor">Correo receptor:</label><br>
-  <input type="email" id="receptor" name="receptor" required><br><br>
-
-  <button type="submit">Enviar</button>
-</form>
+?>
