@@ -1,43 +1,35 @@
 <?php
-// enviarCorreo.php - Versión segura
+// Asegúrate de que esta ruta sea correcta respecto a la ubicación de tu script
+require __DIR__ . '/vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-require 'vendor/autoload.php';
-
-// Configuración (deberías mover esto a variables de entorno)
-define('SMTP_USER', 'asistencia@facturahacienda.com');
-define('SMTP_PASS', 'JJD-UQLKK(Vn'); // MUEVE ESTO A UN LUGAR SEGURO
-
 $mail = new PHPMailer(true);
 
 try {
-    // Configuración SMTP
+    // Configuración del servidor SMTP
     $mail->isSMTP();
     $mail->Host       = 'facturahacienda.com';
     $mail->SMTPAuth   = true;
-    $mail->Username   = SMTP_USER;
-    $mail->Password   = SMTP_PASS;
+    $mail->Username   = 'asistencia@facturahacienda.com';
+    $mail->Password   = 'JJD-UQLKK(Vn';
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
     $mail->Port       = 465;
 
     // Remitente y destinatario
-    $mail->setFrom(SMTP_USER, 'Sistema de Asistencia');
+    $mail->setFrom('asistencia@facturahacienda.com', 'Sistema de Correos');
     $mail->addAddress('danielsrbu@gmail.com', 'Daniel Sánchez');
 
-    // Contenido
+    // Contenido del correo
     $mail->isHTML(true);
-    $mail->Subject = 'Prueba de correo electrónico';
-    $mail->Body    = '<h1>Este es un mensaje de prueba</h1><p>Enviado desde el sistema.</p>';
-    $mail->AltBody = 'Este es un mensaje de prueba (versión texto)';
+    $mail->Subject = 'Prueba desde servidor';
+    $mail->Body    = '<h1>Correo de prueba</h1><p>Funcionando desde el servidor</p>';
+    $mail->AltBody = 'Correo de prueba (versión texto plano)';
 
-    // Envío
     $mail->send();
-    echo 'Correo enviado correctamente';
+    echo 'Correo enviado exitosamente';
 } catch (Exception $e) {
-    error_log('Error al enviar correo: ' . $e->getMessage());
-    echo 'Error al enviar el mensaje. Por favor intenta más tarde.';
-    // En producción, no muestres $mail->ErrorInfo al usuario
+    echo "Error al enviar: " . htmlspecialchars($e->getMessage());
 }
