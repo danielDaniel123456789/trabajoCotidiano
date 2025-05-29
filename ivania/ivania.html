@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dentista Ivania - Agenda tu cita</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .available {
+            background-color: #d4edda !important; /* Verde claro */
+            cursor: pointer;
+        }
+        .booked {
+            background-color: #f8d7da !important; /* Rojo claro */
+            color: #721c24;
+        }
+        .calendar-header {
+            background-color: #0d6efd;
+            color: white;
+        }
+        .time-column {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <h1 class="text-center mb-4">Dentista Ivania</h1>
+        <h2 class="text-center mb-5">Agenda tu cita en mayo 2025</h2>
+        
+        <div class="d-flex justify-content-between mb-4">
+            <button class="btn btn-outline-primary">Mes anterior</button>
+            <h3>Mayo 2025</h3>
+            <button class="btn btn-outline-primary">Siguiente mes</button>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-bordered text-center">
+                <thead>
+                    <tr class="calendar-header">
+                        <th>Hora</th>
+                        <th>Lun 12</th>
+                        <th>Mar 13</th>
+                        <th>Mié 14</th>
+                        <th>Jue 15</th>
+                        <th>Vie 16</th>
+                        <th>Sáb 17</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="time-column">9:00 AM</td>
+                        <td class="available" onclick="scheduleAppointment('Lun 12', '9:00')">✅ Disponible</td>
+                        <td class="booked">❌ Ocupado</td>
+                        <td class="available" onclick="scheduleAppointment('Mié 14', '9:00')">✅ Disponible</td>
+                        <td class="booked">❌ Ocupado</td>
+                        <td class="available" onclick="scheduleAppointment('Vie 16', '9:00')">✅ Disponible</td>
+                        <td class="booked">❌ Ocupado</td>
+                    </tr>
+                    <tr>
+                        <td class="time-column">11:00 AM</td>
+                        <td class="booked">❌ Ocupado</td>
+                        <td class="available" onclick="scheduleAppointment('Mar 13', '11:00')">✅ Disponible</td>
+                        <td class="booked">❌ Ocupado</td>
+                        <td class="available" onclick="scheduleAppointment('Jue 15', '11:00')">✅ Disponible</td>
+                        <td class="booked">❌ Ocupado</td>
+                        <td class="available" onclick="scheduleAppointment('Sáb 17', '11:00')">✅ Disponible</td>
+                    </tr>
+                    <tr>
+                        <td class="time-column">2:00 PM</td>
+                        <td class="available" onclick="scheduleAppointment('Lun 12', '2:00')">✅ Disponible</td>
+                        <td class="booked">❌ Ocupado</td>
+                        <td class="available" onclick="scheduleAppointment('Mié 14', '2:00')">✅ Disponible</td>
+                        <td class="booked">❌ Ocupado</td>
+                        <td class="available" onclick="scheduleAppointment('Vie 16', '2:00')">✅ Disponible</td>
+                        <td class="booked">❌ Ocupado</td>
+                    </tr>
+                    <tr>
+                        <td class="time-column">4:00 PM</td>
+                        <td class="booked">❌ Ocupado</td>
+                        <td class="available" onclick="scheduleAppointment('Mar 13', '4:00')">✅ Disponible</td>
+                        <td class="booked">❌ Ocupado</td>
+                        <td class="available" onclick="scheduleAppointment('Jue 15', '4:00')">✅ Disponible</td>
+                        <td class="booked">❌ Ocupado</td>
+                        <td class="available" onclick="scheduleAppointment('Sáb 17', '4:00')">✅ Disponible</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="text-center mt-5">
+            <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#appointmentModal">
+                Agenda tu cita
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal para agendar cita -->
+    <div class="modal fade" id="appointmentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar cita</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="appointmentForm">
+                        <div class="mb-3">
+                            <label for="appointmentDate" class="form-label">Fecha y hora seleccionada:</label>
+                            <input type="text" class="form-control" id="appointmentDate" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="patientName" class="form-label">Nombre completo:</label>
+                            <input type="text" class="form-control" id="patientName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="patientPhone" class="form-label">Teléfono:</label>
+                            <input type="tel" class="form-control" id="patientPhone" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmAppointment()">Confirmar cita</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS y dependencias -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        let selectedSlot = null;
+        
+        function scheduleAppointment(date, time) {
+            selectedSlot = { date, time };
+            document.getElementById('appointmentDate').value = `${date} a las ${time}`;
+            const modal = new bootstrap.Modal(document.getElementById('appointmentModal'));
+            modal.show();
+        }
+        
+        function confirmAppointment() {
+            const name = document.getElementById('patientName').value;
+            const phone = document.getElementById('patientPhone').value;
+            
+            if (name && phone && selectedSlot) {
+                alert(`Cita confirmada para ${selectedSlot.date} a las ${selectedSlot.time}\nPaciente: ${name}\nTeléfono: ${phone}`);
+                // Aquí iría la lógica para guardar en base de datos
+                const modal = bootstrap.Modal.getInstance(document.getElementById('appointmentModal'));
+                modal.hide();
+            } else {
+                alert('Por favor complete todos los campos');
+            }
+        }
+    </script>
+</body>
+</html>
