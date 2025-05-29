@@ -25,8 +25,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mail->Port       = 465;
 
         // Debug opcional
-        // $mail->SMTPDebug = 2;
-        // $mail->Debugoutput = 'html';
+       $mail->SMTPDebug = 2;
+       $mail->Debugoutput = 'html';
 
         // Datos del mensaje
         $mail->setFrom('asistencia@facturahacienda.com', 'Formulario Web');
