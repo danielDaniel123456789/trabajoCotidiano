@@ -1,15 +1,19 @@
-<form method="POST" action="correosPHP/enviar.php">
-  <label for="nombre">Nombre:</label><br>
-  <input type="text" id="nombre" name="nombre" required><br><br>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Enviar Correo</title>
+</head>
+<body>
+  <h2>Formulario para enviar correo</h2>
+  <form action="enviar.php" method="POST">
+    <label for="correo">Correo destino:</label><br>
+    <input type="email" name="correo" id="correo" required><br><br>
 
-  <label for="email">Tu correo:</label><br>
-  <input type="email" id="email" name="email" required><br><br>
+    <label for="mensaje">Mensaje:</label><br>
+    <textarea name="mensaje" id="mensaje" rows="5" required></textarea><br><br>
 
-  <label for="mensaje">Mensaje:</label><br>
-  <textarea id="mensaje" name="mensaje" rows="5" required></textarea><br><br>
-
-  <label for="receptor">Correo receptor:</label><br>
-  <input type="email" id="receptor" name="receptor" required><br><br>
-
-  <button type="submit">Enviar</button>
-</form>
+    <button type="submit">Enviar Correo</button>
+  </form>
+</body>
+</html>
