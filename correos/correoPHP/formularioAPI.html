@@ -2,13 +2,11 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Formulario con JS</title>
+  <title>Enviar Correo con API</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+    body { font-family: sans-serif; padding: 2rem; background: #f4f4f4; }
     form { background: white; padding: 20px; max-width: 400px; margin: auto; border-radius: 8px; box-shadow: 0 0 10px #ccc; }
-    label { display: block; margin-top: 10px; }
-    input, textarea { width: 100%; padding: 8px; margin-top: 5px; }
-    button { margin-top: 15px; padding: 10px; background: #28a745; color: white; border: none; cursor: pointer; border-radius: 4px; }
+    input, textarea, button { width: 100%; margin-top: 10px; padding: 10px; font-size: 1rem; }
     #respuesta { margin-top: 15px; text-align: center; }
   </style>
 </head>
@@ -17,11 +15,11 @@
   <form id="formulario">
     <h2>Enviar mensaje</h2>
 
-    <label for="correo">Tu correo:</label>
-    <input type="email" id="correo" name="correo" required>
+    <label>Tu correo:</label>
+    <input type="email" id="correo" required>
 
-    <label for="mensaje">Mensaje:</label>
-    <textarea id="mensaje" name="mensaje" rows="5" required></textarea>
+    <label>Mensaje:</label>
+    <textarea id="mensaje" rows="5" required></textarea>
 
     <button type="submit">Enviar</button>
     <div id="respuesta"></div>
@@ -30,26 +28,26 @@
   <script>
     document.getElementById("formulario").addEventListener("submit", async function(e) {
       e.preventDefault();
-
-      const datos = new FormData();
-      datos.append("correo", document.getElementById("correo").value);
-      datos.append("mensaje", document.getElementById("mensaje").value);
-
+      const correo = document.getElementById("correo").value;
+      const mensaje = document.getElementById("mensaje").value;
       const respuesta = document.getElementById("respuesta");
       respuesta.textContent = "Enviando...";
 
       try {
-        const res = await fetch("enviar.php", {
+        const res = await fetch("api/enviar-correo.php", {
           method: "POST",
-          body: datos
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ correo, mensaje })
         });
 
-        const texto = await res.text();
-        respuesta.style.color = texto.includes("exitosamente") ? "green" : "red";
-        respuesta.textContent = texto;
-      } catch (error) {
+        const data = await res.json();
+        respuesta.textContent = data.message;
+        respuesta.style.color = data.status === "ok" ? "green" : "red";
+      } catch (err) {
+        respuesta.textContent = "Error de conexión con la API";
         respuesta.style.color = "red";
-        respuesta.textContent = "Error al enviar el formulario.";
       }
     });
   </script>

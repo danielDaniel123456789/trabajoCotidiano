@@ -1,16 +1,35 @@
 <?php
+// api/enviar-correo.php
+header('Content-Type: application/json');
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require 'vendor/autoload.php';
+require '../vendor/autoload.php'; // Ajusta esta ruta si es necesario
+
+// Validar método
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['status' => 'error', 'message' => 'Método no permitido']);
+    exit;
+}
+
+// Obtener datos del cuerpo JSON
+$datos = json_decode(file_get_contents('php://input'), true);
+
+$correo = $datos['correo'] ?? '';
+$mensaje = $datos['mensaje'] ?? '';
+
+if (empty($correo) || empty($mensaje)) {
+    http_response_code(400);
+    echo json_encode(['status' => 'error', 'message' => 'Faltan datos obligatorios']);
+    exit;
+}
 
 $mail = new PHPMailer(true);
 
 try {
-    $correoUsuario = $_POST['correo'] ?? '';
-    $mensajeUsuario = $_POST['mensaje'] ?? '';
-
-    // Configurar servidor SMTP
+    // Configuración SMTP
     $mail->isSMTP();
     $mail->Host       = 'server359.web-hosting.com';
     $mail->SMTPAuth   = true;
@@ -23,14 +42,15 @@ try {
     $mail->setFrom('asistencia@facturahacienda.com', 'Formulario Web');
     $mail->addAddress('danielsrbu@gmail.com', 'Daniel');
 
-    // Contenido del mensaje
+    // Contenido
     $mail->isHTML(true);
-    $mail->Subject = 'Nuevo mensaje desde formulario web';
-    $mail->Body    = "<b>Correo del usuario:</b> {$correoUsuario}<br><b>Mensaje:</b><br>{$mensajeUsuario}";
-    $mail->AltBody = "Correo del usuario: {$correoUsuario}\n\nMensaje:\n{$mensajeUsuario}";
+    $mail->Subject = 'Mensaje desde formulario web';
+    $mail->Body    = "<strong>Correo del usuario:</strong> $correo<br><strong>Mensaje:</strong><br>$mensaje";
+    $mail->AltBody = "Correo del usuario: $correo\n\nMensaje:\n$mensaje";
 
     $mail->send();
-    echo 'Correo enviado exitosamente';
+    echo json_encode(['status' => 'ok', 'message' => 'Correo enviado exitosamente']);
 } catch (Exception $e) {
-    echo "Error al enviar el correo: {$mail->ErrorInfo}";
+    http_response_code(500);
+    echo json_encode(['status' => 'error', 'message' => "Error: {$mail->ErrorInfo}"]);
 }
