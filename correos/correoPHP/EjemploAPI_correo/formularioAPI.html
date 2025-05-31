@@ -2,55 +2,41 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Enviar Correo con API</title>
-  <style>
-    body { font-family: sans-serif; padding: 2rem; background: #f4f4f4; }
-    form { background: white; padding: 20px; max-width: 400px; margin: auto; border-radius: 8px; box-shadow: 0 0 10px #ccc; }
-    input, textarea, button { width: 100%; margin-top: 10px; padding: 10px; font-size: 1rem; }
-    #respuesta { margin-top: 15px; text-align: center; }
-  </style>
+  <title>Enviar Correo</title>
 </head>
 <body>
+  <h2>Formulario para enviar correo</h2>
+  <form id="correoForm">
+    <label for="correo">Correo destino:</label><br>
+    <input type="email" name="correo" id="correo" required><br><br>
 
-  <form id="formulario">
-    <h2>Enviar mensaje</h2>
+    <label for="mensaje">Mensaje:</label><br>
+    <textarea name="mensaje" id="mensaje" rows="5" required></textarea><br><br>
 
-    <label>Tu correo:</label>
-    <input type="email" id="correo" required>
-
-    <label>Mensaje:</label>
-    <textarea id="mensaje" rows="5" required></textarea>
-
-    <button type="submit">Enviar</button>
-    <div id="respuesta"></div>
+    <button type="submit">Enviar Correo</button>
   </form>
 
+  <p id="resultado"></p>
+
   <script>
-    document.getElementById("formulario").addEventListener("submit", async function(e) {
-      e.preventDefault();
-      const correo = document.getElementById("correo").value;
-      const mensaje = document.getElementById("mensaje").value;
-      const respuesta = document.getElementById("respuesta");
-      respuesta.textContent = "Enviando...";
+    document.getElementById('correoForm').addEventListener('submit', function (e) {
+      e.preventDefault(); // Evita el envío normal del formulario
 
-      try {
-        const res = await fetch("api/enviar-correo.php", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ correo, mensaje })
-        });
+      const formData = new FormData(this);
 
-        const data = await res.json();
-        respuesta.textContent = data.message;
-        respuesta.style.color = data.status === "ok" ? "green" : "red";
-      } catch (err) {
-        respuesta.textContent = "Error de conexión con la API";
-        respuesta.style.color = "red";
-      }
+      fetch('enviar.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('resultado').textContent = data;
+      })
+      .catch(error => {
+        document.getElementById('resultado').textContent = 'Error al enviar el correo.';
+        console.error('Error:', error);
+      });
     });
   </script>
-
 </body>
 </html>

@@ -12,7 +12,7 @@ try {
     $mail->Host       = 'server359.web-hosting.com'; // Host correcto
     $mail->SMTPAuth   = true;
     $mail->Username   = 'asistencia@facturahacienda.com'; // Usuario SMTP
-    $mail->Password   = 'JJD-UQLKK(Vn'; // ⚠️ Revisa que esta contraseña sea actual y válida
+    $mail->Password   = 'JJD-UQLKK(Vn'; // 
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Usa 'ssl'
     $mail->Port       = 465; // Puerto SSL
 
