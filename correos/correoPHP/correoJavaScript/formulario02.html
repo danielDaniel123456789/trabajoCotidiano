@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Enviar Correo con JavaScript</title>
+</head>
+<body>
+  <h2>Formulario para enviar correo</h2>
+
+  <form id="correoForm">
+    <label for="correo">Correo destino:</label><br>
+    <input type="email" name="correo" id="correo" required><br><br>
+
+    <label for="mensaje">Mensaje:</label><br>
+    <textarea name="mensaje" id="mensaje" rows="5" required></textarea><br><br>
+
+    <button type="submit">Enviar Correo</button>
+  </form>
+
+  <p id="resultado" style="font-weight: bold;"></p>
+
+  <script>
+    document.getElementById('correoForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      
+      fetch('enviarJavaScript.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('resultado').textContent = data;
+      })
+      .catch(error => {
+        document.getElementById('resultado').textContent = 'Error al enviar el correo.';
+        console.error('Error:', error);
+      });
+    });
+  </script>
+</body>
+</html>
