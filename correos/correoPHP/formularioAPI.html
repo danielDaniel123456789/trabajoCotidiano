@@ -2,33 +2,26 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Formulario de Contacto</title>
+  <title>Formulario con JS</title>
   <style>
-    body { font-family: Arial; background: #f4f4f4; padding: 20px; }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
     form { background: white; padding: 20px; max-width: 400px; margin: auto; border-radius: 8px; box-shadow: 0 0 10px #ccc; }
     label { display: block; margin-top: 10px; }
     input, textarea { width: 100%; padding: 8px; margin-top: 5px; }
-    button { margin-top: 15px; padding: 10px; background: #007BFF; color: white; border: none; cursor: pointer; border-radius: 4px; }
-    button:hover { background: #0056b3; }
+    button { margin-top: 15px; padding: 10px; background: #28a745; color: white; border: none; cursor: pointer; border-radius: 4px; }
     #respuesta { margin-top: 15px; text-align: center; }
   </style>
 </head>
 <body>
 
   <form id="formulario">
-    <h2>Contacto</h2>
-    
-    <label for="nombre">Nombre:</label>
-    <input type="text" id="nombre" name="nombre" required>
+    <h2>Enviar mensaje</h2>
 
-    <label for="email">Tu correo:</label>
-    <input type="email" id="email" name="email" required>
+    <label for="correo">Tu correo:</label>
+    <input type="email" id="correo" name="correo" required>
 
     <label for="mensaje">Mensaje:</label>
     <textarea id="mensaje" name="mensaje" rows="5" required></textarea>
-
-    <label for="receptor">Correo receptor:</label>
-    <input type="email" id="receptor" name="receptor" required>
 
     <button type="submit">Enviar</button>
     <div id="respuesta"></div>
@@ -38,34 +31,25 @@
     document.getElementById("formulario").addEventListener("submit", async function(e) {
       e.preventDefault();
 
-      const datos = {
-        nombre:   document.getElementById("nombre").value,
-        email:    document.getElementById("email").value,
-        mensaje:  document.getElementById("mensaje").value,
-        receptor: document.getElementById("receptor").value
-      };
+      const datos = new FormData();
+      datos.append("correo", document.getElementById("correo").value);
+      datos.append("mensaje", document.getElementById("mensaje").value);
 
       const respuesta = document.getElementById("respuesta");
       respuesta.textContent = "Enviando...";
 
       try {
-        const res = await fetch("https://facturahacienda.com/correosPHP/api-enviar-correo.php", {
+        const res = await fetch("enviar.php", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(datos)
+          body: datos
         });
 
-        const json = await res.json();
-        if (json.success) {
-          respuesta.style.color = "green";
-          respuesta.textContent = json.message;
-        } else {
-          respuesta.style.color = "red";
-          respuesta.textContent = json.message;
-        }
-      } catch (err) {
+        const texto = await res.text();
+        respuesta.style.color = texto.includes("exitosamente") ? "green" : "red";
+        respuesta.textContent = texto;
+      } catch (error) {
         respuesta.style.color = "red";
-        respuesta.textContent = "Error al conectar con el servidor.";
+        respuesta.textContent = "Error al enviar el formulario.";
       }
     });
   </script>

@@ -1,42 +1,16 @@
 <?php
-header("Access-Control-Allow-Origin: *"); // O limita a tu dominio
-header("Content-Type: application/json");
-header("Access-Control-Allow-Methods: POST");
-
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require 'phpmailer/src/Exception.php';
-require 'phpmailer/src/PHPMailer.php';
-require 'phpmailer/src/SMTP.php';
-
-// Recibir datos JSON
-$data = json_decode(file_get_contents("php://input"), true);
-
-if (!$data) {
-    echo json_encode(['success' => false, 'message' => 'Datos JSON no válidos.']);
-    exit;
-}
-
-$nombre   = trim($data['nombre'] ?? '');
-$email    = trim($data['email'] ?? '');
-$mensaje  = trim($data['mensaje'] ?? '');
-$receptor = trim($data['receptor'] ?? '');
-
-// Validaciones
-if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !filter_var($receptor, FILTER_VALIDATE_EMAIL)) {
-    echo json_encode(['success' => false, 'message' => 'Emails no válidos.']);
-    exit;
-}
-
-if (empty($nombre) || empty($mensaje)) {
-    echo json_encode(['success' => false, 'message' => 'Campos requeridos vacíos.']);
-    exit;
-}
+require 'vendor/autoload.php';
 
 $mail = new PHPMailer(true);
 
 try {
+    $correoUsuario = $_POST['correo'] ?? '';
+    $mensajeUsuario = $_POST['mensaje'] ?? '';
+
+    // Configurar servidor SMTP
     $mail->isSMTP();
     $mail->Host       = 'server359.web-hosting.com';
     $mail->SMTPAuth   = true;
@@ -45,21 +19,18 @@ try {
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
     $mail->Port       = 465;
 
-    $mail->setFrom('asistencia@facturahacienda.com', 'API Web');
-    $mail->addAddress($receptor);
-    $mail->addReplyTo($email, $nombre);
+    // Remitente y destinatario fijo
+    $mail->setFrom('asistencia@facturahacienda.com', 'Formulario Web');
+    $mail->addAddress('danielsrbu@gmail.com', 'Daniel');
 
+    // Contenido del mensaje
     $mail->isHTML(true);
-    $mail->Subject = "Nuevo mensaje de $nombre";
-    $mail->Body    = "
-        <h3>Nuevo mensaje desde la API</h3>
-        <p><strong>Nombre:</strong> $nombre</p>
-        <p><strong>Email:</strong> $email</p>
-        <p><strong>Mensaje:</strong><br>$mensaje</p>
-    ";
+    $mail->Subject = 'Nuevo mensaje desde formulario web';
+    $mail->Body    = "<b>Correo del usuario:</b> {$correoUsuario}<br><b>Mensaje:</b><br>{$mensajeUsuario}";
+    $mail->AltBody = "Correo del usuario: {$correoUsuario}\n\nMensaje:\n{$mensajeUsuario}";
 
     $mail->send();
-    echo json_encode(['success' => true, 'message' => 'Correo enviado correctamente.']);
+    echo 'Correo enviado exitosamente';
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => "Error: {$mail->ErrorInfo}"]);
+    echo "Error al enviar el correo: {$mail->ErrorInfo}";
 }
