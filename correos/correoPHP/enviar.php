@@ -2,70 +2,31 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require 'phpmailer/src/Exception.php';
-require 'phpmailer/src/PHPMailer.php';
-require 'phpmailer/src/SMTP.php';
+require 'vendor/autoload.php'; // o incluye manualmente si no usas Composer
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nombre    = trim($_POST['nombre']);
-    $email     = trim($_POST['email']);
-    $mensaje   = trim($_POST['mensaje']);
-    $receptor  = trim($_POST['receptor']);
+$mail = new PHPMailer(true);
 
-    // Validaciones básicas
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo "Email del remitente no válido.";
-        exit;
-    }
-
-    if (!filter_var($receptor, FILTER_VALIDATE_EMAIL)) {
-        echo "Email del receptor no válido.";
-        exit;
-    }
-
-    if (empty($nombre) || empty($mensaje)) {
-        echo "Todos los campos son obligatorios.";
-        exit;
-    }
-
-    $mail = new PHPMailer(true);
-
-    try {
-        // Configuración del servidor SMTP
-        $mail->isSMTP();
-        $mail->Host       = 'server359.web-hosting.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'asistencia@facturahacienda.com';
+try {
+    // Configuración del servidor SMTP
+    $mail->isSMTP();
+   $mail->Host       = 'server359.web-hosting.com';
+    $mail->SMTPAuth = true;
+     $mail->Username   = 'asistencia@facturahacienda.com';
         $mail->Password   = 'JJD-UQLKK(Vn';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
         $mail->Port       = 465;
 
-        // Debug opcional
-        $mail->SMTPDebug  = 0; // Pon 2 para depuración
-        $mail->Debugoutput = 'html';
+    // Configuración del correo
+  $mail->setFrom('asistencia@facturahacienda.com', 'Formulario Web');
+    $mail->addAddress('danielsrbu@gmail.com', 'Nombre Destinatario');
 
-        // Configurar remitente y destinatario
-        $mail->setFrom('asistencia@facturahacienda.com', 'Formulario Web');
-        $mail->addAddress($receptor, 'Receptor del mensaje');
-        $mail->addReplyTo($email, $nombre);
+    $mail->isHTML(true);
+    $mail->Subject = 'Asunto del correo';
+    $mail->Body    = '<b>Hola!</b> Este es un correo enviado con PHPMailer.';
+    $mail->AltBody = 'Hola! Este es un correo enviado con PHPMailer.';
 
-        // Contenido del mensaje
-        $mail->isHTML(true);
-        $mail->Subject = "Nuevo mensaje de $nombre";
-        $mail->Body    = "
-            <h3>Nuevo mensaje desde el formulario web</h3>
-            <p><strong>Nombre:</strong> $nombre</p>
-            <p><strong>Email:</strong> $email</p>
-            <p><strong>Mensaje:</strong><br>$mensaje</p>
-        ";
-        $mail->AltBody = "Nombre: $nombre\nEmail: $email\nMensaje:\n$mensaje";
-
-        $mail->send();
-        echo 'Mensaje enviado correctamente.';
-    } catch (Exception $e) {
-        echo "Error al enviar el mensaje: {$mail->ErrorInfo}";
-    }
-} else {
-    echo "Acceso denegado.";
+    $mail->send();
+    echo 'Correo enviado exitosamente';
+} catch (Exception $e) {
+    echo "Error al enviar el correo: {$mail->ErrorInfo}";
 }
-?>
