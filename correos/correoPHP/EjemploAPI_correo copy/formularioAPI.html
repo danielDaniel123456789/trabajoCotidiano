@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Enviar Tabla por Correo</title>
+</head>
+<body>
+  <h2>Formulario con tabla dinámica</h2>
+
+  <label for="correo">Correo destino:</label><br>
+  <input type="email" id="correo" required><br><br>
+
+  <table id="tabla" border="1" style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr>
+        <th style="padding: 8px;">Producto</th>
+        <th style="padding: 8px;">Cantidad</th>
+        <th style="padding: 8px;">Precio</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="padding: 8px;">Manzanas</td>
+        <td style="padding: 8px;">10</td>
+        <td style="padding: 8px;">₡500</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px;">Naranjas</td>
+        <td style="padding: 8px;">5</td>
+        <td style="padding: 8px;">₡300</td>
+      </tr>
+    </tbody>
+  </table><br>
+
+  <button onclick="enviarCorreo()">Enviar por correo</button>
+  <p id="resultado"></p>
+
+  <script>
+    function enviarCorreo() {
+      const correo = document.getElementById('correo').value;
+      const tablaHTML = document.getElementById('tabla').outerHTML;
+
+      const formData = new FormData();
+      formData.append('correo', correo);
+      formData.append('tabla', tablaHTML);
+
+      fetch('enviar.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('resultado').textContent = data;
+      })
+      .catch(error => {
+        document.getElementById('resultado').textContent = '❌ Error al enviar.';
+        console.error('Error:', error);
+      });
+    }
+  </script>
+</body>
+</html>
