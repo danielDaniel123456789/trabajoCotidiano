@@ -2,7 +2,7 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require 'vendor/autoload.php'; // Asegúrate de que esta ruta esté bien
+require 'vendor/autoload.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $destino = $_POST['correo'] ?? '';
@@ -25,17 +25,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $mail->isHTML(true);
             $mail->Subject = 'Mensaje desde formulario web';
-            $mail->Body    = "<b>Mensaje:</b><br>" . nl2br(htmlspecialchars($mensaje));
+            $mail->Body    = "<strong>Mensaje:</strong><br>" . nl2br(htmlspecialchars($mensaje));
             $mail->AltBody = strip_tags($mensaje);
 
             $mail->send();
-            echo 'Correo enviado exitosamente.';
+            echo '✅ Correo enviado exitosamente.';
         } catch (Exception $e) {
-            echo "Error al enviar el correo: {$mail->ErrorInfo}";
+            echo "❌ Error al enviar el correo: {$mail->ErrorInfo}";
         }
     } else {
-        echo "Correo inválido o mensaje vacío.";
+        echo "⚠️ Correo inválido o mensaje vacío.";
     }
 } else {
-    echo "Solicitud inválida.";
+    echo "Solicitud no válida.";
 }

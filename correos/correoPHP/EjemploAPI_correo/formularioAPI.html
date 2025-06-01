@@ -2,10 +2,11 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Enviar Correo</title>
+  <title>Enviar Correo con JavaScript</title>
 </head>
 <body>
   <h2>Formulario para enviar correo</h2>
+
   <form id="correoForm">
     <label for="correo">Correo destino:</label><br>
     <input type="email" name="correo" id="correo" required><br><br>
@@ -16,15 +17,15 @@
     <button type="submit">Enviar Correo</button>
   </form>
 
-  <p id="resultado"></p>
+  <p id="resultado" style="font-weight: bold;"></p>
 
   <script>
-    document.getElementById('correoForm').addEventListener('submit', function (e) {
-      e.preventDefault(); // Evita el envío normal del formulario
+    document.getElementById('correoForm').addEventListener('submit', function(e) {
+      e.preventDefault();
 
       const formData = new FormData(this);
-
-      fetch('enviar.php', {
+      
+      fetch('api-enviar-correo.php', {
         method: 'POST',
         body: formData
       })
