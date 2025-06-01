@@ -4,6 +4,7 @@
       html: `
         <button id="btnCorreo" class="swal2-confirm swal2-styled" style="margin-right: 10px;">Correo</button>
         <button id="btnCotidiano" class="swal2-confirm swal2-styled">Cotidiano</button>
+        <button id="btnTarea" class="swal2-confirm swal2-styled">Tarea</button>
       `,
       showConfirmButton: false,
       didOpen: () => {
@@ -13,6 +14,11 @@
         });
         document.getElementById('btnCotidiano').addEventListener('click', () => {
           informeCorreoTrabajoCotidiano();
+        
+        });
+
+         document.getElementById('btnTarea').addEventListener('click', () => {
+          informeCorreoGeneralTareas();
         
         });
       }
