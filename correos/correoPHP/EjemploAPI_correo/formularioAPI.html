@@ -2,19 +2,58 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Enviar Correo con JavaScript</title>
+  <title>Enviar tabla por correo</title>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+  </style>
 </head>
 <body>
-  <h2>Formulario para enviar correo</h2>
+  <h2>Formulario para enviar tabla por correo</h2>
 
   <form id="correoForm">
     <label for="correo">Correo destino:</label><br>
     <input type="email" name="correo" id="correo" required><br><br>
 
-    <label for="mensaje">Mensaje:</label><br>
-    <textarea name="mensaje" id="mensaje" rows="5" required></textarea><br><br>
+    <!-- Aquí puedes tener más campos si necesitas -->
 
-    <button type="submit">Enviar Correo</button>
+    <table id="tablaDatos">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Producto</th>
+          <th>Cantidad</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Juan Pérez</td>
+          <td>Lápiz</td>
+          <td>3</td>
+        </tr>
+        <tr>
+          <td>María Gómez</td>
+          <td>Cuaderno</td>
+          <td>2</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Campo oculto donde se enviará la tabla -->
+    <input type="hidden" name="tabla_html" id="tabla_html">
+
+    <br><button type="submit">Enviar tabla por correo</button>
   </form>
 
   <p id="resultado" style="font-weight: bold;"></p>
@@ -23,8 +62,14 @@
     document.getElementById('correoForm').addEventListener('submit', function(e) {
       e.preventDefault();
 
+      // Obtener la tabla como HTML
+      const tabla = document.getElementById('tablaDatos').outerHTML;
+
+      // Insertarla en el campo oculto
+      document.getElementById('tabla_html').value = tabla;
+
       const formData = new FormData(this);
-      
+
       fetch('api-enviar-correo.php', {
         method: 'POST',
         body: formData
