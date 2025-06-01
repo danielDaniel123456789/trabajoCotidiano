@@ -6,7 +6,7 @@ require 'vendor/autoload.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $destino = $_POST['correo'] ?? '';
-    $tablaHTML = $_POST['tabla'] ?? '';
+    $tablaHTML = htmlspecialchars_decode($_POST['tabla'] ?? '');
 
     if (filter_var($destino, FILTER_VALIDATE_EMAIL) && !empty($tablaHTML)) {
         $mail = new PHPMailer(true);
@@ -25,10 +25,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $mail->isHTML(true);
             $mail->Subject = 'Tabla enviada desde el formulario';
-            $mail->Body    = "
-                <h3>Tabla enviada:</h3>
-                $tablaHTML
+            $mail->Body = "
+                <html>
+                <head>
+                  <style>
+                    table, th, td {
+                      border: 1px solid black;
+                      border-collapse: collapse;
+                      padding: 8px;
+                    }
+                  </style>
+                </head>
+                <body>
+                  <h3>Tabla enviada:</h3>
+                  $tablaHTML
+                </body>
+                </html>
             ";
+
+            $mail->AltBody = 'Tu cliente de correo no admite HTML.';
 
             $mail->send();
             echo "✅ Correo enviado con la tabla.";
