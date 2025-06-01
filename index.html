@@ -75,7 +75,11 @@
      <script src="tareas/editarTareaEstudiante.js"></script>
      <script src="tareas/eliminarTareaEstudiante.js"></script>
      <script src="cotidiano/resumeCotidianoMes.js"></script>
-<script src="correos/informeTrabajoCotidianoYEnviarCorreo.js"></script>
+
+<script src="correos/correoAsistencia/informeTrabajoCotidianoYEnviarCorreo.js"></script>
+<script src="correos/correoAsistencia/informeCorreoMesAsistencia.js"></script>
+<script src="correos/correoAsistencia/informeCorreoTrabajoCotidiano.js"></script>
+<script src="correos/correoAsistencia/pruebaCorreos.js"></script>
   <link rel="stylesheet" href="Librerias/animate/animate.min.css">
 
   <link rel="stylesheet" href="CSS/style.css">
@@ -87,8 +91,10 @@
 
 </head>
 <body>
+    
+    <button onclick="mostrarPopup()">RV</button>
 
-    <button onclick="informeTrabajoCotidianoYEnviarCorreo()">enviar_Correo</button>
+    
     
     <div id="listaEstudiantes">
         <div class="container text-center p-2">
