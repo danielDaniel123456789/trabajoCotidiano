@@ -2,18 +2,16 @@
     Swal.fire({
       title: 'Opciones',
       html: `
-        <button id="btnCorreo" class="swal2-confirm swal2-styled" style="margin-right: 10px;">Correo</button>
-        <button id="btnCotidiano" class="swal2-confirm swal2-styled">Cotidiano</button>
+        <button id="btnCotidiano" class="swal2-confirm swal2-styled" style="margin-right: 10px;">Cotidiano</button>
+
+                <button id="btnAsistencia_id" class="swal2-confirm swal2-styled">Asistencia</button>
         <button id="btnTarea" class="swal2-confirm swal2-styled">Tarea</button>
       `,
       showConfirmButton: false,
       didOpen: () => {
-        document.getElementById('btnCorreo').addEventListener('click', () => {
-          informeTrabajoCotidianoYEnviarCorreo();
-       
-        });
+     
         document.getElementById('btnCotidiano').addEventListener('click', () => {
-          informeCorreoTrabajoCotidiano();
+          informeTrabajoCotidianoYEnviarCorreo();
         
         });
 
@@ -21,6 +19,11 @@
           informeCorreoGeneralTareas();
         
         });
+   document.getElementById('btnAsistencia_id').addEventListener('click', () => {
+          informeCorreoMesAsistencia();
+        
+        });
+        
       }
     });
   }
