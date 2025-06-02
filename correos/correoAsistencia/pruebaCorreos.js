@@ -3,8 +3,7 @@
       title: 'Opciones',
       html: `
         <button id="btnCotidiano" class="swal2-confirm swal2-styled" style="margin-right: 10px;">Cotidiano</button>
-
-                <button id="btnAsistencia_id" class="swal2-confirm swal2-styled">Asistencia</button>
+ <button id="btnAsistencia_id" class="swal2-confirm swal2-styled">Asistencia</button>
         <button id="btnTarea" class="swal2-confirm swal2-styled">Tarea</button>
         <button id="btnPruebas_id" class="swal2-confirm swal2-styled">Pruebas</button>
         
