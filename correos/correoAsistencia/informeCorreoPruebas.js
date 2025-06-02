@@ -1,23 +1,20 @@
-function informeCorreoGeneralTareas() {
-    // Recuperar los grupos desde localStorage
+function informeGeneralPruebas() {
+    // Recuperar datos desde localStorage
     const grupos = JSON.parse(localStorage.getItem('grupos')) || [];
     const materias = JSON.parse(localStorage.getItem('materias')) || [];
     const estudiantes = JSON.parse(localStorage.getItem('students')) || [];
 
-    // Verificar si los grupos existen en localStorage
     if (grupos.length === 0) {
         Swal.fire('Error', 'No se encontraron grupos en el almacenamiento local.', 'error');
         return;
     }
 
-    // Crear el HTML del select para los grupos
     let selectGruposHTML = '<select id="grupoSelect" class="swal2-select">';
     grupos.forEach(grupo => {
         selectGruposHTML += `<option value="${grupo.id}">${grupo.nombre}</option>`;
     });
     selectGruposHTML += '</select>';
 
-    // Mostrar el primer modal con SweetAlert2 para seleccionar el grupo
     Swal.fire({
         title: 'Selecciona un grupo',
         html: selectGruposHTML,
@@ -36,25 +33,21 @@ function informeCorreoGeneralTareas() {
         if (!result.isConfirmed) return;
         const grupoSeleccionado = result.value;
 
-        // Verificar si las materias existen en localStorage
         if (materias.length === 0) {
             Swal.fire('Error', 'No se encontraron materias en el almacenamiento local.', 'error');
             return;
         }
 
-        // Crear el HTML del select para las materias
         let selectMateriasHTML = '<select id="materiaSelect" class="swal2-select">';
         materias.forEach(materia => {
             selectMateriasHTML += `<option value="${materia.id}">${materia.nombre}</option>`;
         });
         selectMateriasHTML += '</select>';
 
-        // Mostrar el segundo modal con SweetAlert2 para seleccionar la materia
         Swal.fire({
             title: 'Selecciona una materia',
             html: selectMateriasHTML,
             showCancelButton: true,
-            showCloseButton: true,
             confirmButtonText: 'Mostrar Informe',
             cancelButtonText: 'Cancelar',
             preConfirm: () => {
@@ -69,92 +62,98 @@ function informeCorreoGeneralTareas() {
             if (!result2.isConfirmed) return;
             const materiaSeleccionada = result2.value;
 
-            // Filtrar estudiantes por grupo y materia seleccionados
-            const estudiantesFiltrados = estudiantes.filter(estudiante =>
+            const estudiantesFiltrados = estudiantes.filter(estudiante => 
                 estudiante.groupId == grupoSeleccionado && estudiante.materiaId == materiaSeleccionada
             );
 
-            // Verificar si hay estudiantes filtrados
             if (estudiantesFiltrados.length === 0) {
                 Swal.fire('No hay estudiantes', 'No se encontraron estudiantes para este grupo y materia.', 'info');
                 return;
             }
 
-            // Obtener todas las tareas únicas para ese grupo y materia
-            let tareasUnicas = [];
+            // Obtener todas las pruebas únicas
+            let pruebasUnicas = [];
             estudiantesFiltrados.forEach(estudiante => {
-                if (estudiante.tareas && Array.isArray(estudiante.tareas)) {
-                    estudiante.tareas.forEach(tarea => {
-                        if (!tareasUnicas.some(t => t.id === tarea.id)) {
-                            tareasUnicas.push(tarea);
+                if (estudiante.pruebas && Array.isArray(estudiante.pruebas)) {
+                    estudiante.pruebas.forEach(prueba => {
+                        if (!pruebasUnicas.some(p => p.id === prueba.id)) {
+                            pruebasUnicas.push(prueba);
                         }
                     });
                 }
             });
 
-            // Ordenar tareas por ID
-            tareasUnicas.sort((a, b) => a.id - b.id);
+            // Ordenar pruebas por fecha (asumiendo que tienen propiedad date)
+            pruebasUnicas.sort((a, b) => {
+                if (a.date && b.date) return new Date(a.date) - new Date(b.date);
+                return 0;
+            });
 
-            // Crear la tabla HTML para las tareas
+            // Crear tabla HTML
             let tableHTML = `
                 <div style="overflow-x: auto;">
-                    <table border="1" style="border-collapse: collapse; width: 100%;" id="tareasTable">
+                    <table border="1" style="border-collapse: collapse; width: 100%;" id="pruebasTable">
                         <thead>
                             <tr>
                                 <th>Estudiante</th>`;
 
-            // Crear las cabeceras de las tareas
-            if (tareasUnicas.length > 0) {
-                tareasUnicas.forEach(tarea => {
-                    tableHTML += `<th>Tarea ${tarea.id}</th>`;
+            // Encabezados de pruebas
+            if (pruebasUnicas.length > 0) {
+                pruebasUnicas.forEach(prueba => {
+                    const fecha = prueba.date ? new Date(prueba.date).toLocaleDateString() : '';
+                    tableHTML += `<th>Prueba ${prueba.id}${fecha ? `<br>${fecha}` : ''}</th>`;
                 });
             } else {
-                tableHTML += '<th>No hay tareas</th>';
+                tableHTML += '<th>No hay pruebas</th>';
             }
-            tableHTML += `<th>Total</th></tr></thead><tbody>`;
 
-            // Recorrer los estudiantes y sus tareas
+            tableHTML += `<th>Promedio</th></tr></thead><tbody>`;
+
+            // Filas de estudiantes
             estudiantesFiltrados.forEach(estudiante => {
                 tableHTML += `<tr><td>${estudiante.name}</td>`;
                 let totalPuntos = 0;
+                let contadorPruebas = 0;
 
-                // Crear las columnas de tareas para cada estudiante
-                if (tareasUnicas.length > 0) {
-                    tareasUnicas.forEach(tarea => {
-                        const tareaEstudiante = (estudiante.tareas && Array.isArray(estudiante.tareas))
-                            ? estudiante.tareas.find(t => t.id === tarea.id)
+                if (pruebasUnicas.length > 0) {
+                    pruebasUnicas.forEach(prueba => {
+                        const pruebaEstudiante = (estudiante.pruebas && Array.isArray(estudiante.pruebas))
+                            ? estudiante.pruebas.find(p => p.id === prueba.id)
                             : null;
                         
-                        let puntos = 0;
-                        if (tareaEstudiante) {
-                            puntos = parseFloat(tareaEstudiante.puntos || tareaEstudiante.score || 0);
-                        }
+                        let puntos = pruebaEstudiante ? parseFloat(pruebaEstudiante.puntos) || 0 : 0;
                         
-                        // Resaltar celdas con colores según los puntos
+                        // Resaltar según puntuación
                         let cellStyle = '';
-                        if (puntos >= 8) cellStyle = 'background-color: #ccffcc;'; // Verde claro
+                        if (puntos >= 8) cellStyle = 'background-color: #ccffcc;'; // Verde
                         else if (puntos >= 5) cellStyle = 'background-color: #ffffcc;'; // Amarillo
-                        else if (puntos > 0) cellStyle = 'background-color: #ffcccc;'; // Rojo claro
+                        else if (puntos > 0) cellStyle = 'background-color: #ffcccc;'; // Rojo
                         
                         tableHTML += `<td style="${cellStyle}">${puntos || ''}</td>`;
-                        totalPuntos += puntos;
+                        
+                        if (pruebaEstudiante) {
+                            totalPuntos += puntos;
+                            contadorPruebas++;
+                        }
                     });
                 } else {
-                    tableHTML += '<td>Sin tareas</td>';
+                    tableHTML += '<td>Sin pruebas</td>';
                 }
 
-                tableHTML += `<td><strong>${totalPuntos.toFixed(1)}</strong></td></tr>`;
+                // Calcular promedio
+                const promedio = contadorPruebas > 0 ? (totalPuntos / contadorPruebas).toFixed(2) : 0;
+                tableHTML += `<td><strong>${promedio}</strong></td></tr>`;
             });
 
             tableHTML += '</tbody></table></div>';
 
-            // Obtener nombres de grupo y materia para el título
+            // Obtener nombres para el título
             const grupoNombre = grupos.find(g => g.id == grupoSeleccionado)?.nombre || 'Grupo';
             const materiaNombre = materias.find(m => m.id == materiaSeleccionada)?.nombre || 'Materia';
 
-            // Mostrar el informe primero
+            // Mostrar informe primero
             Swal.fire({
-                title: `Tareas de ${grupoNombre} - ${materiaNombre}`,
+                title: `Pruebas de ${grupoNombre} - ${materiaNombre}`,
                 html: tableHTML,
                 width: '90%',
                 showCloseButton: true,
@@ -164,15 +163,15 @@ function informeCorreoGeneralTareas() {
                     // Agregar estilos para mejor visualización
                     const style = document.createElement('style');
                     style.textContent = `
-                        #tareasTable th, #tareasTable td {
+                        #pruebasTable th, #pruebasTable td {
                             padding: 5px;
                             text-align: center;
                             min-width: 30px;
                         }
-                        #tareasTable th {
+                        #pruebasTable th {
                             background-color: #f2f2f2;
                         }
-                        #tareasTable td {
+                        #pruebasTable td {
                             font-size: 0.9em;
                         }
                     `;
@@ -181,9 +180,9 @@ function informeCorreoGeneralTareas() {
             }).then((sendResult) => {
                 if (!sendResult.isConfirmed) return;
 
-                // Pide correo luego
+                // Solicitar correo destino
                 Swal.fire({
-                    title: 'Ingrese el correo destino para enviar el informe',
+                    title: 'Ingrese el correo destino',
                     input: 'email',
                     inputLabel: 'Correo electrónico',
                     inputPlaceholder: 'correo@ejemplo.com',
@@ -197,7 +196,7 @@ function informeCorreoGeneralTareas() {
                         }
                     },
                     showCancelButton: true,
-                    confirmButtonText: 'Enviar correo'
+                    confirmButtonText: 'Enviar'
                 }).then((emailResult) => {
                     if (!emailResult.isConfirmed) return;
 
@@ -211,7 +210,7 @@ function informeCorreoGeneralTareas() {
                         body: new URLSearchParams({
                             correo: correoDestino,
                             tabla_html: tableHTML,
-                            asunto: `Informe de Tareas - ${grupoNombre} - ${materiaNombre}`
+                            asunto: `Informe de Pruebas - ${grupoNombre} - ${materiaNombre}`
                         })
                     })
                     .then(res => res.text())
