@@ -47,8 +47,7 @@ function informeCorreoMesAsistencia() {
         const { mes, grupo } = result.value;
 
         const grupoSeleccionado = grupos.find(g => g.id.toString() === grupo.toString());
-        const mesSeleccionadoObj = meses.find(m => m.id === mes);
-        let diasMes = mesSeleccionadoObj.dias;
+        let diasMes = meses.find(m => m.id === mes).dias;
         if (mes === 2) { // Ajuste de año bisiesto
             const añoActual = new Date().getFullYear();
             if ((añoActual % 4 === 0 && añoActual % 100 !== 0) || (añoActual % 400 === 0)) {
@@ -66,38 +65,29 @@ function informeCorreoMesAsistencia() {
             return;
         }
 
-        // Crear encabezados de días
+        // Abreviar nombre del mes para encabezados
+        const nombreMesAbreviado = meses.find(m => m.id === mes).nombre.substring(0, 3);
+
+        // Crear encabezados de días con formato "MesAbrev-Día"
         let diasHeader = '';
         for (let i = 1; i <= diasMes; i++) {
-            diasHeader += `<th>${i}</th>`;
+            const diaFormateado = i.toString().padStart(2, '0');
+            diasHeader += `<th>${nombreMesAbreviado}-${diaFormateado}</th>`;
         }
 
-        // Crear título de la tabla
-        const tituloTabla = `
-            <h2 style="text-align: center; color: #2c3e50; margin-bottom: 20px;">
-                Informe de Asistencia - ${grupoSeleccionado.nombre}
-            </h2>
-            <h3 style="text-align: center; color: #34495e; margin-bottom: 15px;">
-                Mes: ${mesSeleccionadoObj.nombre}
-            </h3>
-            <p style="text-align: center; margin-bottom: 20px; color: #7f8c8d;">
-                Fecha de generación: ${new Date().toLocaleDateString()}
-            </p>
-        `;
-
         let tableHTML = `
-            <div style="font-family: Arial, sans-serif; max-width: 100%;">
-                ${tituloTabla}
-                <div style="overflow-x: auto;">
-                    <table border="1" style="border-collapse: collapse; width: 100%;" id="asistenciaTable">
-                        <thead>
-                            <tr>
-                                <th style="background-color: #3498db; color: white;">👤 Estudiante</th>
-                                ${diasHeader}
-                                <th style="background-color: #3498db; color: white;">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>`;
+            <div style="overflow-x: auto;">
+              <h2 style="text-align: left; margin-bottom: 10px;">
+  Lista de Asistencia - ${meses.find(m => m.id === mes).nombre} - Grupo: ${grupoSeleccionado.nombre}
+</h2>
+                <table border="1" style="border-collapse: collapse; width: 100%;" id="asistenciaTable">
+                    <thead>
+                        <tr>
+                            <th>👤 Estudiante</th>
+                            ${diasHeader}
+                        </tr>
+                    </thead>
+                    <tbody>`;
 
         estudiantesDelGrupo.forEach(estudiante => {
             const ausenciasMes = (estudiante.absences || [])
@@ -107,17 +97,13 @@ function informeCorreoMesAsistencia() {
                 });
 
             let ausenciasPorDia = Array(diasMes).fill('');
-            let totalAusencias = 0;
-
+            
             ausenciasMes.forEach(absence => {
                 const dia = parseInt(absence.date.split('-')[2]);
                 ausenciasPorDia[dia - 1] = absence.type;
-                if (absence.type === 'A' || absence.type === 'J') {
-                    totalAusencias++;
-                }
             });
 
-            tableHTML += `<tr><td style="font-weight: bold;">${estudiante.name}</td>`;
+            tableHTML += `<tr><td>${estudiante.name}</td>`;
             
             ausenciasPorDia.forEach(ausencia => {
                 let cellClass = '';
@@ -126,28 +112,17 @@ function informeCorreoMesAsistencia() {
                 tableHTML += `<td ${cellClass}>${ausencia || ''}</td>`;
             });
 
-            tableHTML += `<td style="font-weight: bold;">${totalAusencias}</td></tr>`;
+            tableHTML += '</tr>';
         });
 
-        tableHTML += `
-                        </tbody>
-                    </table>
-                </div>
-                <p style="text-align: center; margin-top: 20px; color: #7f8c8d; font-size: 12px;">
-                    Leyenda: A = Ausente, J = Justificado
-                </p>
-            </div>`;
+        tableHTML += '</tbody></table></div>';
 
-        // Recuperar correo guardado para precargar
-        const correoGuardado = localStorage.getItem('correoUsuario') || '';
-
-        // Mostrar diálogo para ingresar correo con valor precargado
+        // Mostrar diálogo para ingresar correo destino
         Swal.fire({
             title: 'Ingrese el correo destino para enviar el informe',
             input: 'email',
             inputLabel: 'Correo electrónico',
             inputPlaceholder: 'correo@ejemplo.com',
-            inputValue: correoGuardado,
             inputValidator: (value) => {
                 if (!value) {
                     return 'Necesitas ingresar un correo';
@@ -164,10 +139,7 @@ function informeCorreoMesAsistencia() {
 
             const correoDestino = emailResult.value;
 
-            // Guardar correo para la próxima vez
-            localStorage.setItem('correoUsuario', correoDestino);
-
-            // Mostrar mensaje de "Enviando..."
+            // Mostrar mensaje "Enviando..."
             Swal.fire({
                 title: 'Enviando informe',
                 html: 'Por favor espere mientras se envía el correo...',
@@ -185,7 +157,7 @@ function informeCorreoMesAsistencia() {
                 body: new URLSearchParams({
                     correo: correoDestino,
                     tabla_html: tableHTML,
-                    asunto: `Informe de Asistencia - ${grupoSeleccionado.nombre} - ${mesSeleccionadoObj.nombre}`
+                    asunto: `Informe de Asistencia - ${grupoSeleccionado.nombre} - ${meses.find(m => m.id === mes).nombre}`
                 })
             })
             .then(res => res.text())
