@@ -66,7 +66,7 @@ function informeTrabajoCotidianoYEnviarCorreo() {
             html: selectMateriasHTML,
             showCancelButton: true,
             showCloseButton: true,
-            confirmButtonText: 'Siguiente',
+            confirmButtonText: 'Generar informe',
             preConfirm: () => {
                 const materiaSeleccionada = document.getElementById('materiaSelect').value;
                 return materiaSeleccionada ? materiaSeleccionada : Swal.showValidationMessage('Por favor selecciona una materia');
@@ -75,7 +75,6 @@ function informeTrabajoCotidianoYEnviarCorreo() {
             if (!result2.isConfirmed) return;
 
             const materiaSeleccionada = materias.find(m => m.id.toString() === result2.value.toString());
-
             const estudiantesDelGrupo = estudiantes.filter(est =>
                 est.groupId && est.groupId.toString() === grupoSeleccionado.id.toString()
             );
@@ -95,41 +94,39 @@ function informeTrabajoCotidianoYEnviarCorreo() {
                 maxTrabajos = Math.max(maxTrabajos, trabajosEstudiante.length);
             });
 
-            let tableHTML = `
-                <div style="overflow-x: auto;">
-                    <table border="1" style="border-collapse: collapse; width: 100%;" id="trabajoTable">
-                        <thead>
-                            <tr>
-                                <th>👤</th>
-                                ${Array.from({ length: maxTrabajos }, (_, i) => {
-                    let fecha = '';
-                    for (const estudiante of estudiantesDelGrupo) {
-                        const trabajosFiltrados = estudiante.trabajoCotidiano
-                            ? estudiante.trabajoCotidiano.filter(trabajo => {
-                                const [año, mesTrabajo] = trabajo.date.split('-').map(Number);
-                                return mesTrabajo === parseInt(mes);
-                            })
-                            : [];
+            let tableHTML = `<table border="1" style="border-collapse: collapse; width: 100%;" id="trabajoTable">
+                                <thead>
+                                    <tr>
+                                        <th>👤</th>`;
 
-                        if (trabajosFiltrados[i]) {
-                            fecha = trabajosFiltrados[i].date;
-                            break;
-                        }
+            for (let i = 0; i < maxTrabajos; i++) {
+                let fecha = '';
+                for (const estudiante of estudiantesDelGrupo) {
+                    const trabajosFiltrados = estudiante.trabajoCotidiano
+                        ? estudiante.trabajoCotidiano.filter(trabajo => {
+                            const [año, mesTrabajo] = trabajo.date.split('-').map(Number);
+                            return mesTrabajo === parseInt(mes);
+                        })
+                        : [];
+
+                    if (trabajosFiltrados[i]) {
+                        fecha = trabajosFiltrados[i].date;
+                        break;
                     }
+                }
 
-                    let fechaFormateada = '#';
-                    if (fecha) {
-                        const [año, mesF, dia] = fecha.split('-');
-                        const mesesAbrev = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
-                        const mesAbrev = mesesAbrev[parseInt(mesF, 10) - 1];
-                        fechaFormateada = `${mesAbrev} ${dia}`;
-                    }
+                let fechaFormateada = '#';
+                if (fecha) {
+                    const [año, mesF, dia] = fecha.split('-');
+                    const mesesAbrev = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+                    const mesAbrev = mesesAbrev[parseInt(mesF, 10) - 1];
+                    fechaFormateada = `${mesAbrev} ${dia}`;
+                }
 
-                    return `<th>${fechaFormateada}</th>`;
-                }).join('')}
-                            </tr>
-                        </thead>
-                        <tbody>`;
+                tableHTML += `<th>${fechaFormateada}</th>`;
+            }
+
+            tableHTML += `</tr></thead><tbody>`;
 
             estudiantesDelGrupo.forEach(estudiante => {
                 tableHTML += `<tr><td>${estudiante.name}</td>`;
@@ -140,51 +137,50 @@ function informeTrabajoCotidianoYEnviarCorreo() {
                 tableHTML += `</tr>`;
             });
 
-            tableHTML += `</tbody></table></div>`;
+            tableHTML += `</tbody></table>`;
 
-            // Primero mostrar tabla
+            // Aquí mostramos el Swal para confirmar/modificar correo
+            let correoGuardado = localStorage.getItem("correoUsuario") || '';
+
             Swal.fire({
-                title: `Informe para ${grupoSeleccionado.nombre} - ${materiaSeleccionada.nombre}`,
-                html: tableHTML,
-                width: '1000px',
-                showCloseButton: true,
-                showConfirmButton: true,
-                confirmButtonText: 'Enviar por correo'
-            }).then((sendMail) => {
-                if (!sendMail.isConfirmed) return;
+                title: 'Confirma o modifica tu correo electrónico',
+                input: 'email',
+                inputLabel: 'Correo',
+                inputValue: correoGuardado,
+                inputPlaceholder: 'ejemplo@correo.com',
+                showCancelButton: true,
+                confirmButtonText: 'Enviar informe',
+                cancelButtonText: 'Cancelar',
+                inputValidator: (value) => {
+                    if (!value) return 'Por favor ingresa un correo válido';
+                    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!re.test(value)) return 'Correo inválido';
+                }
+            }).then((resultCorreo) => {
+                if (!resultCorreo.isConfirmed) return;
 
-                // Pide correo luego
+                const correoFinal = resultCorreo.value;
+                // Actualizamos localStorage si cambió el correo
+                if (correoFinal !== correoGuardado) {
+                    localStorage.setItem("correoUsuario", correoFinal);
+                }
+
                 Swal.fire({
-                    title: 'Ingrese el correo destino para enviar el informe',
-                    input: 'email',
-                    inputLabel: 'Correo electrónico',
-                    inputPlaceholder: 'correo@ejemplo.com',
-                    inputValidator: (value) => {
-                        if (!value) {
-                            return 'Necesitas ingresar un correo';
-                        }
-                        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                        if (!re.test(value)) {
-                            return 'Correo inválido';
-                        }
+                    title: 'Enviando informe...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                fetch('https://facturahacienda.com/correosPHP/opcion4.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    showCancelButton: true,
-                    confirmButtonText: 'Enviar correo'
-                }).then((emailResult) => {
-                    if (!emailResult.isConfirmed) return;
-
-                    const correoDestino = emailResult.value;
-
-                    fetch('https://facturahacienda.com/correosPHP/opcion4.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: new URLSearchParams({
-                            correo: correoDestino,
-                            tabla_html: tableHTML
-                        })
+                    body: new URLSearchParams({
+                        correo: correoFinal,
+                        tabla_html: tableHTML
                     })
+                })
                     .then(res => res.text())
                     .then(data => {
                         Swal.fire('Resultado', data, 'info');
@@ -192,7 +188,6 @@ function informeTrabajoCotidianoYEnviarCorreo() {
                     .catch(err => {
                         Swal.fire('Error', 'No se pudo enviar el correo. ' + err.message, 'error');
                     });
-                });
             });
         });
     });

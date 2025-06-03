@@ -115,72 +115,62 @@ function informeCorreoMesAsistencia() {
 
         tableHTML += '</tbody></table></div>';
 
-        // Mostrar tabla primero
+        // Recuperar correo guardado para precargar
+        const correoGuardado = localStorage.getItem('correoUsuario') || '';
+
+        // Mostrar diálogo para ingresar correo con valor precargado
         Swal.fire({
-            title: `Asistencia para ${grupoSeleccionado.nombre} - ${meses.find(m => m.id === mes).nombre}`,
-            html: tableHTML,
-            width: '90%',
-            showCloseButton: true,
-            showConfirmButton: true,
-            confirmButtonText: 'Enviar por correo',
-            didOpen: () => {
-                // Agregar estilos para mejor visualización
-                const style = document.createElement('style');
-                style.textContent = `
-                    #asistenciaTable th, #asistenciaTable td {
-                        padding: 5px;
-                        text-align: center;
-                        min-width: 30px;
-                    }
-                    #asistenciaTable th {
-                        background-color: #f2f2f2;
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-        }).then((sendMail) => {
-            if (!sendMail.isConfirmed) return;
+            title: 'Ingrese el correo destino para enviar el informe',
+            input: 'email',
+            inputLabel: 'Correo electrónico',
+            inputPlaceholder: 'correo@ejemplo.com',
+            inputValue: correoGuardado,
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'Necesitas ingresar un correo';
+                }
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!re.test(value)) {
+                    return 'Correo inválido';
+                }
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Enviar correo'
+        }).then((emailResult) => {
+            if (!emailResult.isConfirmed) return;
 
-            // Pide correo luego
+            const correoDestino = emailResult.value;
+
+            // Guardar correo para la próxima vez
+            localStorage.setItem('correoUsuario', correoDestino);
+
+            // Mostrar mensaje de "Enviando..."
             Swal.fire({
-                title: 'Ingrese el correo destino para enviar el informe',
-                input: 'email',
-                inputLabel: 'Correo electrónico',
-                inputPlaceholder: 'correo@ejemplo.com',
-                inputValidator: (value) => {
-                    if (!value) {
-                        return 'Necesitas ingresar un correo';
-                    }
-                    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    if (!re.test(value)) {
-                        return 'Correo inválido';
-                    }
+                title: 'Enviando informe',
+                html: 'Por favor espere mientras se envía el correo...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            fetch('https://facturahacienda.com/correosPHP/opcion4.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                showCancelButton: true,
-                confirmButtonText: 'Enviar correo'
-            }).then((emailResult) => {
-                if (!emailResult.isConfirmed) return;
-
-                const correoDestino = emailResult.value;
-
-                fetch('https://facturahacienda.com/correosPHP/opcion4.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams({
-                        correo: correoDestino,
-                        tabla_html: tableHTML,
-                        asunto: `Informe de Asistencia - ${grupoSeleccionado.nombre} - ${meses.find(m => m.id === mes).nombre}`
-                    })
+                body: new URLSearchParams({
+                    correo: correoDestino,
+                    tabla_html: tableHTML,
+                    asunto: `Informe de Asistencia - ${grupoSeleccionado.nombre} - ${meses.find(m => m.id === mes).nombre}`
                 })
-                .then(res => res.text())
-                .then(data => {
-                    Swal.fire('Resultado', data, 'info');
-                })
-                .catch(err => {
-                    Swal.fire('Error', 'No se pudo enviar el correo. ' + err.message, 'error');
-                });
+            })
+            .then(res => res.text())
+            .then(data => {
+                Swal.fire('Éxito', 'El informe de asistencia ha sido enviado por correo.', 'success');
+            })
+            .catch(err => {
+                Swal.fire('Error', 'No se pudo enviar el correo. ' + err.message, 'error');
             });
         });
     });
