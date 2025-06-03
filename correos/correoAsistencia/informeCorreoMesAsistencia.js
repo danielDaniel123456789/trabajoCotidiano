@@ -117,12 +117,16 @@ function informeCorreoMesAsistencia() {
 
         tableHTML += '</tbody></table></div>';
 
-        // Mostrar diálogo para ingresar correo destino
+        // Recuperar correo guardado para precargar
+        const correoGuardado = localStorage.getItem('correoUsuario') || '';
+
+        // Mostrar diálogo para ingresar correo destino con valor precargado
         Swal.fire({
             title: 'Ingrese el correo destino para enviar el informe',
             input: 'email',
             inputLabel: 'Correo electrónico',
             inputPlaceholder: 'correo@ejemplo.com',
+            inputValue: correoGuardado, // Precargar el correo guardado
             inputValidator: (value) => {
                 if (!value) {
                     return 'Necesitas ingresar un correo';
@@ -138,6 +142,9 @@ function informeCorreoMesAsistencia() {
             if (!emailResult.isConfirmed) return;
 
             const correoDestino = emailResult.value;
+
+            // Guardar el correo en localStorage para futuros usos
+            localStorage.setItem('correoUsuario', correoDestino);
 
             // Mostrar mensaje "Enviando..."
             Swal.fire({
