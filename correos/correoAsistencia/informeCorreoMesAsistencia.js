@@ -47,7 +47,8 @@ function informeCorreoMesAsistencia() {
         const { mes, grupo } = result.value;
 
         const grupoSeleccionado = grupos.find(g => g.id.toString() === grupo.toString());
-        let diasMes = meses.find(m => m.id === mes).dias;
+        const mesSeleccionadoObj = meses.find(m => m.id === mes);
+        let diasMes = mesSeleccionadoObj.dias;
         if (mes === 2) { // Ajuste de año bisiesto
             const añoActual = new Date().getFullYear();
             if ((añoActual % 4 === 0 && añoActual % 100 !== 0) || (añoActual % 400 === 0)) {
@@ -71,17 +72,32 @@ function informeCorreoMesAsistencia() {
             diasHeader += `<th>${i}</th>`;
         }
 
+        // Crear título de la tabla
+        const tituloTabla = `
+            <h2 style="text-align: center; color: #2c3e50; margin-bottom: 20px;">
+                Informe de Asistencia - ${grupoSeleccionado.nombre}
+            </h2>
+            <h3 style="text-align: center; color: #34495e; margin-bottom: 15px;">
+                Mes: ${mesSeleccionadoObj.nombre}
+            </h3>
+            <p style="text-align: center; margin-bottom: 20px; color: #7f8c8d;">
+                Fecha de generación: ${new Date().toLocaleDateString()}
+            </p>
+        `;
+
         let tableHTML = `
-            <div style="overflow-x: auto;">
-                <table border="1" style="border-collapse: collapse; width: 100%;" id="asistenciaTable">
-                    <thead>
-                        <tr>
-                            <th>👤 Estudiante</th>
-                            ${diasHeader}
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>`;
+            <div style="font-family: Arial, sans-serif; max-width: 100%;">
+                ${tituloTabla}
+                <div style="overflow-x: auto;">
+                    <table border="1" style="border-collapse: collapse; width: 100%;" id="asistenciaTable">
+                        <thead>
+                            <tr>
+                                <th style="background-color: #3498db; color: white;">👤 Estudiante</th>
+                                ${diasHeader}
+                                <th style="background-color: #3498db; color: white;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
 
         estudiantesDelGrupo.forEach(estudiante => {
             const ausenciasMes = (estudiante.absences || [])
@@ -101,7 +117,7 @@ function informeCorreoMesAsistencia() {
                 }
             });
 
-            tableHTML += `<tr><td>${estudiante.name}</td>`;
+            tableHTML += `<tr><td style="font-weight: bold;">${estudiante.name}</td>`;
             
             ausenciasPorDia.forEach(ausencia => {
                 let cellClass = '';
@@ -110,10 +126,17 @@ function informeCorreoMesAsistencia() {
                 tableHTML += `<td ${cellClass}>${ausencia || ''}</td>`;
             });
 
-            tableHTML += `<td>${totalAusencias}</td></tr>`;
+            tableHTML += `<td style="font-weight: bold;">${totalAusencias}</td></tr>`;
         });
 
-        tableHTML += '</tbody></table></div>';
+        tableHTML += `
+                        </tbody>
+                    </table>
+                </div>
+                <p style="text-align: center; margin-top: 20px; color: #7f8c8d; font-size: 12px;">
+                    Leyenda: A = Ausente, J = Justificado
+                </p>
+            </div>`;
 
         // Recuperar correo guardado para precargar
         const correoGuardado = localStorage.getItem('correoUsuario') || '';
@@ -162,7 +185,7 @@ function informeCorreoMesAsistencia() {
                 body: new URLSearchParams({
                     correo: correoDestino,
                     tabla_html: tableHTML,
-                    asunto: `Informe de Asistencia - ${grupoSeleccionado.nombre} - ${meses.find(m => m.id === mes).nombre}`
+                    asunto: `Informe de Asistencia - ${grupoSeleccionado.nombre} - ${mesSeleccionadoObj.nombre}`
                 })
             })
             .then(res => res.text())
