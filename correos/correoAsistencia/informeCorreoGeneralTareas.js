@@ -181,12 +181,16 @@ function informeCorreoGeneralTareas() {
             }).then((sendResult) => {
                 if (!sendResult.isConfirmed) return;
 
-                // Pide correo luego
+                // Recuperar correo guardado para precargar
+                const correoGuardado = localStorage.getItem('correoUsuario') || '';
+
+                // Pide correo luego con el valor precargado
                 Swal.fire({
                     title: 'Ingrese el correo destino para enviar el informe',
                     input: 'email',
                     inputLabel: 'Correo electrónico',
                     inputPlaceholder: 'correo@ejemplo.com',
+                    inputValue: correoGuardado, // Precargar el correo guardado
                     inputValidator: (value) => {
                         if (!value) {
                             return 'Necesitas ingresar un correo';
@@ -203,6 +207,19 @@ function informeCorreoGeneralTareas() {
 
                     const correoDestino = emailResult.value;
 
+                    // Guardar el correo en localStorage para futuros usos
+                    localStorage.setItem('correoUsuario', correoDestino);
+
+                    // Mostrar mensaje "Enviando..."
+                    Swal.fire({
+                        title: 'Enviando informe',
+                        html: 'Por favor espere mientras se envía el correo...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
                     fetch('https://facturahacienda.com/correosPHP/opcion4.php', {
                         method: 'POST',
                         headers: {
@@ -216,7 +233,7 @@ function informeCorreoGeneralTareas() {
                     })
                     .then(res => res.text())
                     .then(data => {
-                        Swal.fire('Resultado', data, 'info');
+                        Swal.fire('Éxito', 'El informe de tareas ha sido enviado por correo.', 'success');
                     })
                     .catch(err => {
                         Swal.fire('Error', 'No se pudo enviar el correo. ' + err.message, 'error');

@@ -95,19 +95,19 @@ function informeGeneralPruebas() {
                     <table border="1" style="border-collapse: collapse; width: 100%;" id="pruebasTable">
                         <thead>
                             <tr>
-                                <th>Estudiante</th>`;
+                                <th>👤 Estudiante</th>`;
 
             // Encabezados de pruebas
             if (pruebasUnicas.length > 0) {
                 pruebasUnicas.forEach(prueba => {
                     const fecha = prueba.date ? new Date(prueba.date).toLocaleDateString() : '';
-                    tableHTML += `<th>Prueba ${prueba.id}${fecha ? `<br>${fecha}` : ''}</th>`;
+                    tableHTML += `<th>Prueba ${prueba.id}${fecha ? `<br><small>${fecha}</small>` : ''}</th>`;
                 });
             } else {
                 tableHTML += '<th>No hay pruebas</th>';
             }
 
-            tableHTML += `<th>Promedio</th></tr></thead><tbody>`;
+            tableHTML += `<th>📊 Promedio</th></tr></thead><tbody>`;
 
             // Filas de estudiantes
             estudiantesFiltrados.forEach(estudiante => {
@@ -142,7 +142,12 @@ function informeGeneralPruebas() {
 
                 // Calcular promedio
                 const promedio = contadorPruebas > 0 ? (totalPuntos / contadorPruebas).toFixed(2) : 0;
-                tableHTML += `<td><strong>${promedio}</strong></td></tr>`;
+                let promedioStyle = '';
+                if (promedio >= 8) promedioStyle = 'color: #2e7d32;'; // Verde
+                else if (promedio >= 5) promedioStyle = 'color: #f9a825;'; // Amarillo
+                else if (promedio > 0) promedioStyle = 'color: #c62828;'; // Rojo
+                
+                tableHTML += `<td style="font-weight: bold; ${promedioStyle}">${promedio}</td></tr>`;
             });
 
             tableHTML += '</tbody></table></div>';
@@ -153,7 +158,7 @@ function informeGeneralPruebas() {
 
             // Mostrar informe primero
             Swal.fire({
-                title: `Pruebas de ${grupoNombre} - ${materiaNombre}`,
+                title: `Informe de Pruebas - ${grupoNombre} - ${materiaNombre}`,
                 html: tableHTML,
                 width: '90%',
                 showCloseButton: true,
@@ -163,16 +168,29 @@ function informeGeneralPruebas() {
                     // Agregar estilos para mejor visualización
                     const style = document.createElement('style');
                     style.textContent = `
+                        #pruebasTable {
+                            width: 100%;
+                            margin: 10px 0;
+                            font-size: 0.9em;
+                        }
                         #pruebasTable th, #pruebasTable td {
-                            padding: 5px;
+                            padding: 8px;
                             text-align: center;
-                            min-width: 30px;
+                            border: 1px solid #ddd;
                         }
                         #pruebasTable th {
-                            background-color: #f2f2f2;
+                            background-color: #f8f9fa;
+                            font-weight: bold;
                         }
-                        #pruebasTable td {
-                            font-size: 0.9em;
+                        #pruebasTable tr:nth-child(even) {
+                            background-color: #f9f9f9;
+                        }
+                        #pruebasTable tr:hover {
+                            background-color: #f1f1f1;
+                        }
+                        small {
+                            font-size: 0.8em;
+                            color: #666;
                         }
                     `;
                     document.head.appendChild(style);
@@ -180,28 +198,48 @@ function informeGeneralPruebas() {
             }).then((sendResult) => {
                 if (!sendResult.isConfirmed) return;
 
-                // Solicitar correo destino
+                // Recuperar correo guardado para precargar
+                const correoGuardado = localStorage.getItem('correoUsuario') || '';
+
+                // Solicitar correo destino con valor precargado
                 Swal.fire({
-                    title: 'Ingrese el correo destino',
+                    title: 'Enviar informe por correo',
+                    html: `Enviar <b>Informe de Pruebas - ${grupoNombre} - ${materiaNombre}</b> a:`,
                     input: 'email',
                     inputLabel: 'Correo electrónico',
                     inputPlaceholder: 'correo@ejemplo.com',
+                    inputValue: correoGuardado,
                     inputValidator: (value) => {
                         if (!value) {
-                            return 'Necesitas ingresar un correo';
+                            return 'Debe ingresar un correo electrónico';
                         }
                         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                         if (!re.test(value)) {
-                            return 'Correo inválido';
+                            return 'Ingrese un correo electrónico válido';
                         }
                     },
                     showCancelButton: true,
-                    confirmButtonText: 'Enviar'
+                    confirmButtonText: 'Enviar',
+                    cancelButtonText: 'Cancelar'
                 }).then((emailResult) => {
                     if (!emailResult.isConfirmed) return;
 
                     const correoDestino = emailResult.value;
 
+                    // Guardar el correo en localStorage para futuros usos
+                    localStorage.setItem('correoUsuario', correoDestino);
+
+                    // Mostrar mensaje de carga
+                    Swal.fire({
+                        title: 'Enviando informe...',
+                        html: 'Por favor espere mientras se envía el correo',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Enviar el correo
                     fetch('https://facturahacienda.com/correosPHP/opcion4.php', {
                         method: 'POST',
                         headers: {
@@ -215,10 +253,20 @@ function informeGeneralPruebas() {
                     })
                     .then(res => res.text())
                     .then(data => {
-                        Swal.fire('Resultado', data, 'info');
+                        Swal.fire({
+                            title: '¡Envío exitoso!',
+                            html: `El <b>Informe de Pruebas - ${grupoNombre} - ${materiaNombre}</b> ha sido enviado a:<br><b>${correoDestino}</b>`,
+                            icon: 'success',
+                            confirmButtonText: 'Aceptar'
+                        });
                     })
                     .catch(err => {
-                        Swal.fire('Error', 'No se pudo enviar el correo. ' + err.message, 'error');
+                        Swal.fire({
+                            title: 'Error al enviar',
+                            html: `No se pudo enviar el informe a:<br><b>${correoDestino}</b><br><br>Error: ${err.message}`,
+                            icon: 'error',
+                            confirmButtonText: 'Entendido'
+                        });
                     });
                 });
             });
